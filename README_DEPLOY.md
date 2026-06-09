@@ -28,6 +28,19 @@ Add these in GitHub:
 | `CONOHA_FTP_PORT` | `21` for FTP |
 | `CONOHA_REMOTE_DIR` | Usually `public_html/dropworld.space/` |
 
+The workflow also accepts shorter aliases if you already created them:
+
+```text
+FTP_SERVER
+FTP_USERNAME
+FTP_PASSWORD
+FTP_PORT
+FTP_REMOTE_DIR
+FTP_SERVER_DIR
+```
+
+If the deploy job says `FTP_SERVER is empty`, the secret exists under a different name, in another repository, or only under an Environment that the workflow job is not using.
+
 Do not commit FTP passwords, API keys, SSH keys, or ConoHa account credentials.
 
 ## ConoHa WING Checks
