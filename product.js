@@ -33,13 +33,14 @@ const cartCount = document.querySelector("#cart-count");
 const siteHeader = document.querySelector(".site-header");
 
 async function loadCatalog() {
+  const useLocalPreview = new URLSearchParams(window.location.search).get("preview") === "local";
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      const database = await fetchCatalogDatabase();
-      return normalizeCatalog(database || defaultCatalog);
+    if (useLocalPreview) {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) return normalizeCatalog({ ...defaultCatalog, ...JSON.parse(stored) });
     }
-    return normalizeCatalog({ ...defaultCatalog, ...JSON.parse(stored) });
+    const database = await fetchCatalogDatabase();
+    return normalizeCatalog(database || defaultCatalog);
   } catch {
     const database = await fetchCatalogDatabase();
     return normalizeCatalog(database || defaultCatalog);
