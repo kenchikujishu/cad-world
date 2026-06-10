@@ -1,112 +1,49 @@
-const STORAGE_KEY = "nezumi_admin_demo_state";
-const SESSION_KEY = "nezumi_admin_session";
-const ADMIN_EMAIL = "admin@nezumi.cad";
+const STORAGE_KEY = "dropworld_catalog_state";
+const SESSION_KEY = "dropworld_admin_session";
+const ADMIN_EMAIL = "admin@dropworld.space";
 const ADMIN_PASSWORD = "demo2026";
 const LOGIN_REQUIRED = false;
 const memoryStorage = {};
 
 const defaultState = {
-  categories: [
-    { id: "landscape", en: "Landscape", ja: "ランドスケープ" },
-    { id: "architecture", en: "Architecture", ja: "建築" },
-    { id: "urban", en: "Urban", ja: "都市" },
-    { id: "interior", en: "Interior", ja: "インテリア" },
-  ],
+  version: 2,
+  store: {
+    name: "DROP WORLD",
+  },
+  pages: {
+    heroEyebrowEn: "Digital drawing assets for spatial stories",
+    heroEyebrowJa: "空間の物語のためのデジタル図面素材",
+    heroTitleEn: "CAD sets for quiet, detailed architecture presentations.",
+    heroTitleJa: "静かで緻密な建築プレゼンのためのCADセット。",
+    heroCtaEn: "Browse collection",
+    aboutTitleEn: "Curated CAD fragments with the calm of a finished drawing.",
+    aboutTitleJa: "完成図面の静けさをまとった、使いやすいCAD素材。",
+    aboutBodyEn:
+      "DROP WORLD is a CAD asset shop for architecture, landscape, and spatial presentation. Products are arranged for immediate placement into plans, sections, elevations, and axonometric scenes.",
+    aboutBodyJa:
+      "DROP WORLDは、建築・ランドスケープ・空間プレゼンテーションのためのCAD素材ショップです。平面、断面、立面、アクソメのシーンにすぐ配置できるように整理しています。",
+  },
+  categories: [],
   genres: [
     { id: "plan", en: "Plan", ja: "平面" },
     { id: "section", en: "Section", ja: "断面" },
     { id: "elevation", en: "Elevation", ja: "立面" },
     { id: "axonometric", en: "Axonometric", ja: "アクソメ" },
-    { id: "asset-pack", en: "Asset Pack", ja: "素材パック" },
   ],
-  products: [
-    {
-      id: "p-urban-section",
-      order: 1,
-      titleEn: "Cad Monochrome Urban Street Section",
-      titleJa: "CAD モノクローム都市ストリート断面",
-      descriptionEn: "Editable street section with people, facade elements, trees, cars, and linework layers.",
-      descriptionJa: "人物、ファサード、樹木、車両、線画レイヤーを含む編集可能なストリート断面セット。",
-      categoryId: "urban",
-      genreId: "section",
-      type: "Section",
-      price: 12.99,
-      status: "Published",
-      slug: "cad-monochrome-urban-street-section",
-      fileName: "urban-street-section.zip",
-      thumbnail: "",
-      sold: 184,
-      revenue: 2390.16,
-    },
-    {
-      id: "p-courtyard-plan",
-      order: 2,
-      titleEn: "Cad Botanical Courtyard Plan Creator",
-      titleJa: "CAD ボタニカル中庭平面クリエイター",
-      descriptionEn: "Plan drawing components for planting beds, pathways, furniture, and interior landscape layouts.",
-      descriptionJa: "植栽帯、園路、家具、インテリアランドスケープ配置に使える平面図素材。",
-      categoryId: "landscape",
-      genreId: "plan",
-      type: "Plan",
-      price: 10.99,
-      status: "Published",
-      slug: "cad-botanical-courtyard-plan-creator",
-      fileName: "botanical-courtyard-plan.zip",
-      thumbnail: "",
-      sold: 126,
-      revenue: 1384.74,
-    },
-    {
-      id: "p-housing-elevation",
-      order: 3,
-      titleEn: "Cad Quiet Housing Elevation Kit",
-      titleJa: "CAD 静かな集合住宅立面キット",
-      descriptionEn: "Facade elevation kit with windows, balconies, planting, and presentation-ready annotations.",
-      descriptionJa: "窓、バルコニー、植栽、プレゼン用注記を含む集合住宅立面キット。",
-      categoryId: "architecture",
-      genreId: "elevation",
-      type: "Elevation",
-      price: 9.99,
-      status: "Review",
-      slug: "cad-quiet-housing-elevation-kit",
-      fileName: "quiet-housing-elevation.zip",
-      thumbnail: "",
-      sold: 53,
-      revenue: 529.47,
-    },
-    {
-      id: "p-wetland-axon",
-      order: 4,
-      titleEn: "Axonometric Wetland Habitat Set",
-      titleJa: "アクソメ湿地ハビタットセット",
-      descriptionEn: "Axonometric landscape set for ecological diagrams, animal habitats, planting islands, and water edges.",
-      descriptionJa: "生態ダイアグラム、動物ハビタット、植栽島、水際表現のためのアクソメ素材。",
-      categoryId: "landscape",
-      genreId: "axonometric",
-      type: "Axonometric",
-      price: 12.99,
-      status: "Draft",
-      slug: "axonometric-wetland-habitat-set",
-      fileName: "wetland-habitat-axon.zip",
-      thumbnail: "",
-      sold: 37,
-      revenue: 480.63,
-    },
-  ],
-  orders: [
-    { id: "NC-1044", customer: "Studio Mori", productId: "p-urban-section", total: 25.98, status: "Paid", day: "Mon" },
-    { id: "NC-1045", customer: "Atelier N", productId: "p-courtyard-plan", total: 10.99, status: "Paid", day: "Tue" },
-    { id: "NC-1046", customer: "Kita Office", productId: "p-wetland-axon", total: 12.99, status: "Pending", day: "Wed" },
-    { id: "NC-1047", customer: "Field House", productId: "p-urban-section", total: 12.99, status: "Paid", day: "Thu" },
-    { id: "NC-1048", customer: "Grid Room", productId: "p-housing-elevation", total: 19.98, status: "Refund review", day: "Fri" },
-    { id: "NC-1049", customer: "Plot Lab", productId: "p-courtyard-plan", total: 21.98, status: "Paid", day: "Sat" },
-    { id: "NC-1050", customer: "Line Archive", productId: "p-urban-section", total: 12.99, status: "Paid", day: "Sun" },
-  ],
+  tags: [],
+  products: [],
+  sortOrders: {
+    all: [],
+    categories: {},
+    genres: {},
+    tags: {},
+  },
 };
 
-let state = loadState();
+let state = normalizeState(loadState());
 let pendingThumbnail = "";
-let currentView = "dashboard";
+let currentView = "products";
+let currentScope = "all";
 
 const authScreen = document.querySelector("#auth-screen");
 const adminShell = document.querySelector("#admin-shell");
@@ -119,18 +56,19 @@ const viewTitle = document.querySelector("#view-title");
 const productForm = document.querySelector("#product-form");
 const productSearch = document.querySelector("#product-search");
 const statusFilter = document.querySelector("#status-filter");
+const scopeFilter = document.querySelector("#scope-filter");
 const cadFile = document.querySelector("#cad-file");
 const thumbnailFile = document.querySelector("#thumbnail-file");
 const thumbPreview = document.querySelector("#thumb-preview");
 const fileName = document.querySelector("#file-name");
+const pagesForm = document.querySelector("#pages-form");
 
 const viewMeta = {
-  dashboard: ["Dashboard", "Today at Nezumi CAD"],
   products: ["CAD Items", "Product Library"],
   editor: ["Upload / Edit", "CAD Data Editor"],
-  taxonomy: ["Taxonomy", "Categories and Genres"],
-  sales: ["Sales", "Revenue and Orders"],
-  settings: ["Settings", "Publishing Controls"],
+  taxonomy: ["Taxonomy", "Categories, Genres and # Tags"],
+  pages: ["Fixed Pages", "Storefront Copy"],
+  storage: ["Storage", "Upload and Database Flow"],
 };
 
 function loadState() {
@@ -143,7 +81,48 @@ function loadState() {
   }
 }
 
+function normalizeState(value) {
+  const next = { ...cloneState(defaultState), ...value };
+  next.store = { ...defaultState.store, ...(value.store || {}) };
+  next.pages = { ...defaultState.pages, ...(value.pages || {}) };
+  next.categories = Array.isArray(value.categories) ? value.categories : [];
+  next.genres = Array.isArray(value.genres) && value.genres.length ? value.genres : cloneState(defaultState.genres);
+  next.tags = Array.isArray(value.tags) ? value.tags : [];
+  next.products = Array.isArray(value.products) ? value.products.map(normalizeProduct) : [];
+  next.sortOrders = {
+    all: Array.isArray(value.sortOrders?.all) ? value.sortOrders.all : next.products.map((product) => product.id),
+    categories: value.sortOrders?.categories || {},
+    genres: value.sortOrders?.genres || {},
+    tags: value.sortOrders?.tags || {},
+  };
+  next.products = next.products.map((product, index) => ({ ...product, order: Number(product.order || index + 1) }));
+  return next;
+}
+
+function normalizeProduct(product) {
+  return {
+    id: product.id || createId(),
+    order: Number(product.order || 0),
+    titleEn: product.titleEn || "",
+    titleJa: product.titleJa || "",
+    descriptionEn: product.descriptionEn || "",
+    descriptionJa: product.descriptionJa || "",
+    categoryId: product.categoryId || "",
+    genreId: product.genreId || "",
+    type: product.type || "Plan",
+    price: Number(product.price || 0),
+    status: product.status || "Draft",
+    slug: product.slug || slugify(product.titleEn || ""),
+    fileName: product.fileName || "",
+    thumbnail: product.thumbnail || "",
+    tags: Array.isArray(product.tags) ? product.tags : [],
+    createdAt: product.createdAt || new Date().toISOString(),
+    updatedAt: product.updatedAt || new Date().toISOString(),
+  };
+}
+
 function saveState() {
+  state = normalizeState(state);
   storageSet(STORAGE_KEY, JSON.stringify(state));
 }
 
@@ -212,12 +191,24 @@ document.querySelector("#logout-button").addEventListener("click", () => {
   LOGIN_REQUIRED ? showAuth() : showApp();
 });
 
-document.querySelector("#seed-button").addEventListener("click", () => {
+document.querySelector("#reset-button").addEventListener("click", () => {
+  if (!window.confirm("Clear local DROP WORLD admin data in this browser?")) return;
   state = cloneState(defaultState);
   pendingThumbnail = "";
-  saveState();
+  currentScope = "all";
+  storageRemove(STORAGE_KEY);
   clearForm();
   renderAll();
+});
+
+document.querySelector("#export-button").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "dropworld-catalog.json";
+  link.click();
+  URL.revokeObjectURL(url);
 });
 
 navLinks.forEach((button) => {
@@ -231,16 +222,16 @@ function setView(view) {
   viewKicker.textContent = viewMeta[view][0];
   viewTitle.textContent = viewMeta[view][1];
   if (view === "editor" && !document.querySelector("#product-id").value) clearForm();
+  if (view === "pages") fillPagesForm();
 }
 
 function renderAll() {
-  renderMetrics();
-  renderChart();
-  renderQueue();
+  renderScopeOptions();
   renderTaxonomySelects();
+  renderTagChecks();
   renderProductsTable();
   renderTaxonomy();
-  renderSales();
+  fillPagesForm();
   renderThumbPreview();
 }
 
@@ -249,118 +240,143 @@ function currency(value) {
 }
 
 function getCategory(id) {
-  return state.categories.find((category) => category.id === id) || { en: "Unassigned", ja: "未設定" };
+  return state.categories.find((category) => category.id === id) || { en: "Unassigned", ja: "未設定", id: "" };
 }
 
 function getGenre(id) {
-  return state.genres.find((genre) => genre.id === id) || { en: "Unassigned", ja: "未設定" };
+  return state.genres.find((genre) => genre.id === id) || { en: "Unassigned", ja: "未設定", id: "" };
 }
 
-function sortedProducts() {
-  return [...state.products].sort((a, b) => a.order - b.order);
+function getTag(id) {
+  return state.tags.find((tag) => tag.id === id) || { en: id, ja: id, id };
 }
 
-function renderMetrics() {
-  const published = state.products.filter((product) => product.status === "Published").length;
-  const totalRevenue = state.products.reduce((sum, product) => sum + Number(product.revenue || 0), 0);
-  const totalSold = state.products.reduce((sum, product) => sum + Number(product.sold || 0), 0);
-  const pending = state.products.filter((product) => product.status !== "Published").length;
-  document.querySelector("#metric-grid").innerHTML = [
-    ["Revenue", currency(totalRevenue), "+12.4%"],
-    ["Published", published, "Live CAD data"],
-    ["Units Sold", totalSold, "+28 this week"],
-    ["Queue", pending, "Draft / Review"],
-  ]
-    .map(
-      ([label, value, note]) => `
-        <article class="metric-card">
-          <span>${label}</span>
-          <strong>${value}</strong>
-          <small>${note}</small>
-        </article>
-      `,
-    )
-    .join("");
+function renderScopeOptions() {
+  const options = [
+    `<option value="all">All products</option>`,
+    ...state.categories.map((item) => `<option value="category:${escapeAttr(item.id)}">Category / ${escapeHtml(item.en)}</option>`),
+    ...state.genres.map((item) => `<option value="genre:${escapeAttr(item.id)}">Genre / ${escapeHtml(item.en)}</option>`),
+    ...state.tags.map((item) => `<option value="tag:${escapeAttr(item.id)}"># ${escapeHtml(item.en)}</option>`),
+  ];
+  scopeFilter.innerHTML = options.join("");
+  if (![...scopeFilter.options].some((option) => option.value === currentScope)) currentScope = "all";
+  scopeFilter.value = currentScope;
 }
 
-function renderChart() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const revenue = days.map((day) =>
-    state.orders.filter((order) => order.day === day).reduce((sum, order) => sum + Number(order.total || 0), 0),
-  );
-  const max = Math.max(...revenue, 1);
-  document.querySelector("#bar-chart").innerHTML = days
-    .map((day, index) => {
-      const height = Math.max(8, Math.round((revenue[index] / max) * 100));
-      return `<div class="bar" style="--bar-height:${height}%"><span>${day}</span></div>`;
-    })
-    .join("");
+function scopeParts(scopeKey = currentScope) {
+  if (scopeKey === "all") return ["all", ""];
+  const [type, id] = scopeKey.split(":");
+  return [type, id];
 }
 
-function renderQueue() {
-  const queued = sortedProducts().filter((product) => product.status !== "Published");
-  document.querySelector("#queue-count").textContent = `${queued.length} items`;
-  document.querySelector("#queue-list").innerHTML = queued.length
-    ? queued
-        .map(
-          (product) => `
-            <div class="queue-item">
-              <strong>${product.titleEn}</strong>
-              <span>${product.status} · ${getCategory(product.categoryId).en} / ${getGenre(product.genreId).en}</span>
-            </div>
-          `,
-        )
-        .join("")
-    : `<div class="queue-item"><strong>No queued items</strong><span>All products are published.</span></div>`;
+function productsInScope(scopeKey = currentScope) {
+  const [type, id] = scopeParts(scopeKey);
+  if (type === "category") return state.products.filter((product) => product.categoryId === id);
+  if (type === "genre") return state.products.filter((product) => product.genreId === id);
+  if (type === "tag") return state.products.filter((product) => product.tags.includes(id));
+  return [...state.products];
+}
+
+function getScopeOrder(scopeKey = currentScope) {
+  const [type, id] = scopeParts(scopeKey);
+  if (type === "category") return state.sortOrders.categories[id] || [];
+  if (type === "genre") return state.sortOrders.genres[id] || [];
+  if (type === "tag") return state.sortOrders.tags[id] || [];
+  return state.sortOrders.all || [];
+}
+
+function setScopeOrder(scopeKey, ids) {
+  const [type, id] = scopeParts(scopeKey);
+  if (type === "category") state.sortOrders.categories[id] = ids;
+  else if (type === "genre") state.sortOrders.genres[id] = ids;
+  else if (type === "tag") state.sortOrders.tags[id] = ids;
+  else state.sortOrders.all = ids;
+}
+
+function sortedProducts(scopeKey = currentScope) {
+  const list = productsInScope(scopeKey);
+  const order = getScopeOrder(scopeKey);
+  const rank = new Map(order.map((id, index) => [id, index]));
+  return list.sort((a, b) => {
+    const aRank = rank.has(a.id) ? rank.get(a.id) : Number.MAX_SAFE_INTEGER;
+    const bRank = rank.has(b.id) ? rank.get(b.id) : Number.MAX_SAFE_INTEGER;
+    if (aRank !== bRank) return aRank - bRank;
+    return Number(a.order || 0) - Number(b.order || 0);
+  });
+}
+
+function ensureScopeOrders() {
+  const scopes = [
+    "all",
+    ...state.categories.map((item) => `category:${item.id}`),
+    ...state.genres.map((item) => `genre:${item.id}`),
+    ...state.tags.map((item) => `tag:${item.id}`),
+  ];
+
+  scopes.forEach((scopeKey) => {
+    const ids = productsInScope(scopeKey).map((product) => product.id);
+    const existing = getScopeOrder(scopeKey).filter((id) => ids.includes(id));
+    const missing = ids.filter((id) => !existing.includes(id));
+    setScopeOrder(scopeKey, [...existing, ...missing]);
+  });
 }
 
 function renderProductsTable() {
+  ensureScopeOrders();
   const query = productSearch.value.trim().toLowerCase();
   const status = statusFilter.value;
-  const rows = sortedProducts().filter((product) => {
-    const haystack = `${product.titleEn} ${product.titleJa} ${product.slug} ${getCategory(product.categoryId).en} ${getGenre(product.genreId).en}`.toLowerCase();
+  const rows = sortedProducts(currentScope).filter((product) => {
+    const tagText = product.tags.map((tagId) => getTag(tagId).en).join(" ");
+    const haystack = `${product.titleEn} ${product.titleJa} ${product.slug} ${getCategory(product.categoryId).en} ${getGenre(product.genreId).en} ${tagText}`.toLowerCase();
     const statusMatch = status === "all" || product.status === status;
     return statusMatch && haystack.includes(query);
   });
 
-  document.querySelector("#products-table").innerHTML = rows
-    .map(
-      (product) => `
-        <tr>
-          <td>
-            <div class="action-row">
-              <button class="icon-action" type="button" data-action="up" data-id="${product.id}" aria-label="Move up">↑</button>
-              <button class="icon-action" type="button" data-action="down" data-id="${product.id}" aria-label="Move down">↓</button>
-            </div>
-          </td>
-          <td>
-            <div class="cad-cell">
-              <div class="mini-thumb">${thumbMarkup(product)}</div>
-              <div>
-                <strong>${product.titleEn}</strong>
-                <span>${product.titleJa}</span>
-                <span>/${product.slug}</span>
-              </div>
-            </div>
-          </td>
-          <td>${getCategory(product.categoryId).en}<br /><span class="muted">${getGenre(product.genreId).en} · ${product.type}</span></td>
-          <td>${currency(product.price)}</td>
-          <td><span class="status-pill ${product.status.toLowerCase()}">${product.status}</span></td>
-          <td>${product.sold}</td>
-          <td>
-            <div class="action-row">
-              <button class="icon-action" type="button" data-action="edit" data-id="${product.id}">Edit</button>
-              <button class="icon-action danger" type="button" data-action="delete" data-id="${product.id}">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `,
-    )
-    .join("");
+  document.querySelector("#products-table").innerHTML = rows.length
+    ? rows.map(productRow).join("")
+    : `<tr><td colspan="7"><div class="empty-state">No CAD items yet. Add categories first, then upload a product.</div></td></tr>`;
+}
+
+function productRow(product) {
+  return `
+    <tr>
+      <td>
+        <div class="action-row">
+          <button class="icon-action" type="button" data-action="up" data-id="${escapeAttr(product.id)}" aria-label="Move up">↑</button>
+          <button class="icon-action" type="button" data-action="down" data-id="${escapeAttr(product.id)}" aria-label="Move down">↓</button>
+        </div>
+      </td>
+      <td>
+        <div class="cad-cell">
+          <div class="mini-thumb">${thumbMarkup(product)}</div>
+          <div>
+            <strong>${escapeHtml(product.titleEn || "Untitled CAD")}</strong>
+            <span>${escapeHtml(product.titleJa || "無題")}</span>
+            <span>/${escapeHtml(product.slug)}</span>
+          </div>
+        </div>
+      </td>
+      <td>${escapeHtml(getCategory(product.categoryId).en)}<br /><span class="muted">${escapeHtml(getGenre(product.genreId).en)} · ${escapeHtml(product.type)}</span></td>
+      <td>${tagPills(product.tags)}</td>
+      <td>${currency(product.price)}</td>
+      <td><span class="status-pill ${product.status.toLowerCase()}">${escapeHtml(product.status)}</span></td>
+      <td>
+        <div class="action-row">
+          <button class="icon-action" type="button" data-action="edit" data-id="${escapeAttr(product.id)}">Edit</button>
+          <button class="icon-action danger" type="button" data-action="delete" data-id="${escapeAttr(product.id)}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function tagPills(tagIds = []) {
+  if (!tagIds.length) return `<span class="muted">No tags</span>`;
+  return tagIds.map((id) => `<span class="tag-pill">#${escapeHtml(getTag(id).en)}</span>`).join("");
 }
 
 function thumbMarkup(product) {
-  if (product.thumbnail) return `<img src="${product.thumbnail}" alt="" />`;
+  if (product.thumbnail) return `<img src="${escapeAttr(product.thumbnail)}" alt="" />`;
   const color = product.type === "Section" ? "#6570df" : product.type === "Elevation" ? "#a06a55" : "#83b8b0";
   return `
     <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -374,6 +390,10 @@ function thumbMarkup(product) {
 
 productSearch.addEventListener("input", renderProductsTable);
 statusFilter.addEventListener("change", renderProductsTable);
+scopeFilter.addEventListener("change", () => {
+  currentScope = scopeFilter.value;
+  renderProductsTable();
+});
 
 document.querySelector("#products-table").addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
@@ -389,7 +409,8 @@ document.querySelector("#products-table").addEventListener("click", (event) => {
   if (button.dataset.action === "delete") {
     if (!window.confirm("Delete this CAD item?")) return;
     state.products = state.products.filter((item) => item.id !== product.id);
-    normalizeOrder();
+    removeProductFromOrders(product.id);
+    normalizeGlobalOrder();
     saveState();
     renderAll();
   }
@@ -400,18 +421,35 @@ document.querySelector("#products-table").addEventListener("click", (event) => {
 });
 
 function moveProduct(id, direction) {
-  const list = sortedProducts();
+  const list = sortedProducts(currentScope);
   const index = list.findIndex((product) => product.id === id);
   const targetIndex = direction === "up" ? index - 1 : index + 1;
   if (targetIndex < 0 || targetIndex >= list.length) return;
-  [list[index].order, list[targetIndex].order] = [list[targetIndex].order, list[index].order];
-  state.products = list;
+  const ids = list.map((product) => product.id);
+  [ids[index], ids[targetIndex]] = [ids[targetIndex], ids[index]];
+  setScopeOrder(currentScope, ids);
   saveState();
-  renderAll();
+  renderProductsTable();
 }
 
-function normalizeOrder() {
-  state.products = sortedProducts().map((product, index) => ({ ...product, order: index + 1 }));
+function normalizeGlobalOrder() {
+  const ids = sortedProducts("all").map((product) => product.id);
+  state.products = state.products.map((product) => ({ ...product, order: ids.indexOf(product.id) + 1 || product.order }));
+  ensureScopeOrders();
+}
+
+function removeProductFromOrders(id) {
+  const clean = (ids) => ids.filter((itemId) => itemId !== id);
+  state.sortOrders.all = clean(state.sortOrders.all || []);
+  Object.keys(state.sortOrders.categories).forEach((key) => {
+    state.sortOrders.categories[key] = clean(state.sortOrders.categories[key]);
+  });
+  Object.keys(state.sortOrders.genres).forEach((key) => {
+    state.sortOrders.genres[key] = clean(state.sortOrders.genres[key]);
+  });
+  Object.keys(state.sortOrders.tags).forEach((key) => {
+    state.sortOrders.tags[key] = clean(state.sortOrders.tags[key]);
+  });
 }
 
 document.querySelector("#new-product-button").addEventListener("click", () => {
@@ -422,12 +460,31 @@ document.querySelector("#new-product-button").addEventListener("click", () => {
 document.querySelector("#clear-form-button").addEventListener("click", clearForm);
 
 function renderTaxonomySelects() {
-  document.querySelector("#category-select").innerHTML = state.categories
-    .map((category) => `<option value="${category.id}">${category.en} / ${category.ja}</option>`)
-    .join("");
-  document.querySelector("#genre-select").innerHTML = state.genres
-    .map((genre) => `<option value="${genre.id}">${genre.en} / ${genre.ja}</option>`)
-    .join("");
+  document.querySelector("#category-select").innerHTML = state.categories.length
+    ? state.categories.map((category) => `<option value="${escapeAttr(category.id)}">${escapeHtml(category.en)} / ${escapeHtml(category.ja)}</option>`).join("")
+    : `<option value="">Add category first</option>`;
+  document.querySelector("#genre-select").innerHTML = state.genres.length
+    ? state.genres.map((genre) => `<option value="${escapeAttr(genre.id)}">${escapeHtml(genre.en)} / ${escapeHtml(genre.ja)}</option>`).join("")
+    : `<option value="">Add genre first</option>`;
+}
+
+function renderTagChecks(selected = getSelectedTags()) {
+  document.querySelector("#tag-checks").innerHTML = state.tags.length
+    ? state.tags
+        .map(
+          (tag) => `
+            <label class="tag-check">
+              <input type="checkbox" value="${escapeAttr(tag.id)}" ${selected.includes(tag.id) ? "checked" : ""} />
+              <span>#${escapeHtml(tag.en)}</span>
+            </label>
+          `,
+        )
+        .join("")
+    : `<p class="helper-copy">No tags yet. Add tags in Taxonomy.</p>`;
+}
+
+function getSelectedTags() {
+  return [...document.querySelectorAll("#tag-checks input:checked")].map((input) => input.value);
 }
 
 function fillForm(product) {
@@ -445,6 +502,7 @@ function fillForm(product) {
   fileName.textContent = product.fileName || "Select package";
   pendingThumbnail = product.thumbnail || "";
   document.querySelector("#editor-mode").textContent = "Editing";
+  renderTagChecks(product.tags);
   renderThumbPreview();
 }
 
@@ -457,11 +515,12 @@ function clearForm() {
   document.querySelector("#description-ja").value = "";
   document.querySelector("#price-input").value = "12.99";
   document.querySelector("#slug-input").value = "";
-  document.querySelector("#status-select").value = "Draft";
+  document.querySelector("#status-select").value = "Published";
   document.querySelector("#editor-mode").textContent = "New item";
   fileName.textContent = "Select package";
   pendingThumbnail = "";
   renderTaxonomySelects();
+  renderTagChecks([]);
   renderThumbPreview();
 }
 
@@ -486,6 +545,10 @@ cadFile.addEventListener("change", () => {
 thumbnailFile.addEventListener("change", () => {
   const file = thumbnailFile.files[0];
   if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    window.alert("Please select an image file.");
+    return;
+  }
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     pendingThumbnail = reader.result;
@@ -495,14 +558,26 @@ thumbnailFile.addEventListener("change", () => {
 });
 
 function renderThumbPreview() {
-  thumbPreview.innerHTML = pendingThumbnail ? `<img src="${pendingThumbnail}" alt="" />` : "No thumbnail selected";
+  thumbPreview.innerHTML = pendingThumbnail ? `<img src="${escapeAttr(pendingThumbnail)}" alt="" />` : "No thumbnail selected";
 }
 
 productForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  const id = document.querySelector("#product-id").value || `p-${crypto.randomUUID().slice(0, 8)}`;
+  if (!state.categories.length) {
+    window.alert("Add at least one category before uploading CAD data.");
+    setView("taxonomy");
+    return;
+  }
+  if (!state.genres.length) {
+    window.alert("Add at least one genre before uploading CAD data.");
+    setView("taxonomy");
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const id = document.querySelector("#product-id").value || createId();
   const existing = state.products.find((product) => product.id === id);
-  const product = {
+  const product = normalizeProduct({
     id,
     order: existing?.order || state.products.length + 1,
     titleEn: document.querySelector("#title-en").value.trim(),
@@ -517,13 +592,16 @@ productForm.addEventListener("submit", (event) => {
     slug: document.querySelector("#slug-input").value.trim() || slugify(document.querySelector("#title-en").value),
     fileName: cadFile.files[0]?.name || existing?.fileName || "cad-package.zip",
     thumbnail: pendingThumbnail || existing?.thumbnail || "",
-    sold: existing?.sold || 0,
-    revenue: existing?.revenue || 0,
-  };
+    tags: getSelectedTags(),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  });
 
   state.products = existing ? state.products.map((item) => (item.id === id ? product : item)) : [...state.products, product];
-  normalizeOrder();
+  normalizeGlobalOrder();
+  ensureScopeOrders();
   saveState();
+  currentScope = "all";
   clearForm();
   setView("products");
   renderAll();
@@ -532,18 +610,26 @@ productForm.addEventListener("submit", (event) => {
 function renderTaxonomy() {
   document.querySelector("#category-count").textContent = `${state.categories.length}`;
   document.querySelector("#genre-count").textContent = `${state.genres.length}`;
-  document.querySelector("#category-list").innerHTML = state.categories.map((item) => taxonomyMarkup(item, "category")).join("");
-  document.querySelector("#genre-list").innerHTML = state.genres.map((item) => taxonomyMarkup(item, "genre")).join("");
+  document.querySelector("#tag-count").textContent = `${state.tags.length}`;
+  document.querySelector("#category-list").innerHTML = state.categories.length
+    ? state.categories.map((item) => taxonomyMarkup(item, "category")).join("")
+    : `<div class="empty-state">No categories yet.</div>`;
+  document.querySelector("#genre-list").innerHTML = state.genres.length
+    ? state.genres.map((item) => taxonomyMarkup(item, "genre")).join("")
+    : `<div class="empty-state">No genres yet.</div>`;
+  document.querySelector("#tag-list").innerHTML = state.tags.length
+    ? state.tags.map((item) => taxonomyMarkup(item, "tag")).join("")
+    : `<div class="empty-state">No tags yet.</div>`;
 }
 
 function taxonomyMarkup(item, type) {
   return `
     <div class="taxonomy-item">
       <div>
-        <strong>${item.en}</strong>
-        <span>${item.ja} · ${item.id}</span>
+        <strong>${escapeHtml(type === "tag" ? `#${item.en}` : item.en)}</strong>
+        <span>${escapeHtml(item.ja)} · ${escapeHtml(item.id)}</span>
       </div>
-      <button class="icon-action danger" type="button" data-taxonomy="${type}" data-id="${item.id}">Delete</button>
+      <button class="icon-action danger" type="button" data-taxonomy="${type}" data-id="${escapeAttr(item.id)}">Delete</button>
     </div>
   `;
 }
@@ -558,11 +644,20 @@ document.querySelector("#genre-form").addEventListener("submit", (event) => {
   addTaxonomy("genres", document.querySelector("#genre-en"), document.querySelector("#genre-ja"));
 });
 
+document.querySelector("#tag-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  addTaxonomy("tags", document.querySelector("#tag-en"), document.querySelector("#tag-ja"));
+});
+
 function addTaxonomy(collection, enInput, jaInput) {
   const en = enInput.value.trim();
   const ja = jaInput.value.trim();
   if (!en || !ja) return;
   const id = slugify(en);
+  if (!id) {
+    window.alert("Use an English name that can become a URL slug.");
+    return;
+  }
   if (state[collection].some((item) => item.id === id)) {
     window.alert("This name already exists.");
     return;
@@ -577,47 +672,77 @@ function addTaxonomy(collection, enInput, jaInput) {
 document.querySelector("#view-taxonomy").addEventListener("click", (event) => {
   const button = event.target.closest("[data-taxonomy]");
   if (!button) return;
-  const collection = button.dataset.taxonomy === "category" ? "categories" : "genres";
-  const field = button.dataset.taxonomy === "category" ? "categoryId" : "genreId";
-  if (state.products.some((product) => product[field] === button.dataset.id)) {
-    window.alert("This item is used by CAD data.");
+  const type = button.dataset.taxonomy;
+  const collection = type === "category" ? "categories" : type === "genre" ? "genres" : "tags";
+  const id = button.dataset.id;
+
+  if (type === "category" && state.products.some((product) => product.categoryId === id)) {
+    window.alert("This category is used by CAD data.");
     return;
   }
-  state[collection] = state[collection].filter((item) => item.id !== button.dataset.id);
+  if (type === "genre" && state.products.some((product) => product.genreId === id)) {
+    window.alert("This genre is used by CAD data.");
+    return;
+  }
+  if (type === "tag" && state.products.some((product) => product.tags.includes(id))) {
+    window.alert("This tag is used by CAD data.");
+    return;
+  }
+
+  state[collection] = state[collection].filter((item) => item.id !== id);
+  if (type === "category") delete state.sortOrders.categories[id];
+  if (type === "genre") delete state.sortOrders.genres[id];
+  if (type === "tag") delete state.sortOrders.tags[id];
   saveState();
   renderAll();
 });
 
-function renderSales() {
-  document.querySelector("#orders-count").textContent = `${state.orders.length}`;
-  document.querySelector("#orders-table").innerHTML = state.orders
-    .map((order) => {
-      const product = state.products.find((item) => item.id === order.productId);
-      return `
-        <tr>
-          <td>${order.id}</td>
-          <td>${order.customer}</td>
-          <td>${product?.titleEn || "Deleted CAD"}</td>
-          <td>${currency(order.total)}</td>
-          <td><span class="status-pill ${order.status === "Paid" ? "published" : "review"}">${order.status}</span></td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  const best = [...state.products].sort((a, b) => b.sold - a.sold).slice(0, 5);
-  const top = Math.max(...best.map((product) => product.sold), 1);
-  document.querySelector("#seller-list").innerHTML = best
-    .map(
-      (product) => `
-        <div class="seller-item">
-          <strong>${product.titleEn}</strong>
-          <span>${product.sold}</span>
-          <div class="seller-meter"><i style="--meter:${Math.round((product.sold / top) * 100)}%"></i></div>
-        </div>
-      `,
-    )
-    .join("");
+function fillPagesForm() {
+  document.querySelector("#store-name").value = state.store.name;
+  document.querySelector("#hero-eyebrow-en").value = state.pages.heroEyebrowEn;
+  document.querySelector("#hero-eyebrow-ja").value = state.pages.heroEyebrowJa;
+  document.querySelector("#hero-title-en").value = state.pages.heroTitleEn;
+  document.querySelector("#hero-title-ja").value = state.pages.heroTitleJa;
+  document.querySelector("#hero-cta-en").value = state.pages.heroCtaEn;
+  document.querySelector("#about-title-en").value = state.pages.aboutTitleEn;
+  document.querySelector("#about-title-ja").value = state.pages.aboutTitleJa;
+  document.querySelector("#about-body-en").value = state.pages.aboutBodyEn;
+  document.querySelector("#about-body-ja").value = state.pages.aboutBodyJa;
 }
 
+pagesForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  state.store.name = document.querySelector("#store-name").value.trim() || "DROP WORLD";
+  state.pages.heroEyebrowEn = document.querySelector("#hero-eyebrow-en").value.trim();
+  state.pages.heroEyebrowJa = document.querySelector("#hero-eyebrow-ja").value.trim();
+  state.pages.heroTitleEn = document.querySelector("#hero-title-en").value.trim();
+  state.pages.heroTitleJa = document.querySelector("#hero-title-ja").value.trim();
+  state.pages.heroCtaEn = document.querySelector("#hero-cta-en").value.trim();
+  state.pages.aboutTitleEn = document.querySelector("#about-title-en").value.trim();
+  state.pages.aboutTitleJa = document.querySelector("#about-title-ja").value.trim();
+  state.pages.aboutBodyEn = document.querySelector("#about-body-en").value.trim();
+  state.pages.aboutBodyJa = document.querySelector("#about-body-ja").value.trim();
+  saveState();
+  window.alert("Fixed page copy saved.");
+});
+
+function createId() {
+  if (crypto?.randomUUID) return `p-${crypto.randomUUID().slice(0, 8)}`;
+  return `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(value = "") {
+  return escapeHtml(value);
+}
+
+saveState();
 setView(currentView);

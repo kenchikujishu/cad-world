@@ -1,142 +1,33 @@
-const products = [
-  {
-    id: "urban-street-section",
-    title: "Cad Monochrome Urban Street Section",
-    titleJa: "CAD モノクローム都市ストリート断面",
-    category: "section",
-    price: "$12.99",
-    template: "street",
-    accent: "#6570df",
-    tags: "people facade cars city section",
-  },
-  {
-    id: "garden-plan-creator",
-    title: "Cad Botanical Courtyard Plan Creator",
-    titleJa: "CAD ボタニカル中庭平面クリエイター",
-    category: "plan",
-    price: "$10.99",
-    template: "plan",
-    accent: "#83b8b0",
-    tags: "garden plan trees paving furniture",
-  },
-  {
-    id: "quiet-elevation-kit",
-    title: "Cad Quiet Housing Elevation Kit",
-    titleJa: "CAD 静かな集合住宅立面キット",
-    category: "elevation",
-    price: "$9.99",
-    template: "elevation",
-    accent: "#a06a55",
-    tags: "housing facade window elevation vegetation",
-  },
-  {
-    id: "wetland-axonometric",
-    title: "Axonometric Wetland Habitat Set",
-    titleJa: "アクソメ湿地ハビタットセット",
-    category: "axonometric",
-    price: "$12.99",
-    template: "axon",
-    accent: "#72aaa1",
-    tags: "axonometric landscape habitat water",
-  },
-  {
-    id: "studio-section",
-    title: "Cad Creative Studio Section Pack",
-    titleJa: "CAD クリエイティブスタジオ断面パック",
-    category: "section",
-    price: "$8.99",
-    template: "street",
-    accent: "#4f8794",
-    tags: "workspace section figures facade",
-  },
-  {
-    id: "museum-plan",
-    title: "Cad Museum Gallery Plan Bundle",
-    titleJa: "CAD ミュージアムギャラリー平面バンドル",
-    category: "plan",
-    price: "$15.99",
-    template: "plan",
-    accent: "#9d7a5e",
-    tags: "museum gallery plan furniture",
-  },
-  {
-    id: "terrace-elevation",
-    title: "Cad Terrace Elevation Details",
-    titleJa: "CAD テラス立面ディテール",
-    category: "elevation",
-    price: "$7.99",
-    template: "elevation",
-    accent: "#5f8f78",
-    tags: "terrace balcony elevation plants",
-  },
-  {
-    id: "cafe-axonometric",
-    title: "Axonometric Cafe Furniture Setups",
-    titleJa: "アクソメ カフェ家具セットアップ",
-    category: "axonometric",
-    price: "$11.99",
-    template: "axon",
-    accent: "#c27c61",
-    tags: "axonometric cafe furniture people",
-  },
-  {
-    id: "residential-plan",
-    title: "Cad Compact Residential Plan Set",
-    titleJa: "CAD コンパクト住宅平面セット",
-    category: "plan",
-    price: "$12.99",
-    template: "plan",
-    accent: "#7b94b5",
-    tags: "residential plan interior",
-  },
-  {
-    id: "campus-section",
-    title: "Cad Campus Landscape Section",
-    titleJa: "CAD キャンパスランドスケープ断面",
-    category: "section",
-    price: "$13.99",
-    template: "street",
-    accent: "#8bb7a7",
-    tags: "campus landscape section",
-  },
-  {
-    id: "public-elevation",
-    title: "Cad Public Library Elevation Set",
-    titleJa: "CAD 公共図書館立面セット",
-    category: "elevation",
-    price: "$14.99",
-    template: "elevation",
-    accent: "#6e7891",
-    tags: "public library elevation facade",
-  },
-  {
-    id: "planet-axonometric",
-    title: "Axonometric Planet Garden Bundle",
-    titleJa: "アクソメ プラネットガーデンバンドル",
-    category: "axonometric",
-    price: "$16.99",
-    template: "axon",
-    accent: "#7ec8bc",
-    tags: "axonometric garden bundle trees",
-  },
-];
+const STORAGE_KEY = "dropworld_catalog_state";
 
-const categoryLabels = {
-  en: {
-    all: "All CAD Sets",
-    plan: "Plan CAD Sets",
-    section: "Section CAD Sets",
-    elevation: "Elevation CAD Sets",
-    axonometric: "Axonometric CAD Sets",
+const defaultCatalog = {
+  store: { name: "DROP WORLD" },
+  pages: {
+    heroEyebrowEn: "Digital drawing assets for spatial stories",
+    heroEyebrowJa: "空間の物語のためのデジタル図面素材",
+    heroTitleEn: "CAD sets for quiet, detailed architecture presentations.",
+    heroTitleJa: "静かで緻密な建築プレゼンのためのCADセット。",
+    heroCtaEn: "Browse collection",
+    aboutTitleEn: "Curated CAD fragments with the calm of a finished drawing.",
+    aboutTitleJa: "完成図面の静けさをまとった、使いやすいCAD素材。",
+    aboutBodyEn:
+      "DROP WORLD is a CAD asset shop for landscape, architecture, and urban drawing assets. Each set is arranged for immediate placement into plans, sections, elevations, and axonometric scenes.",
+    aboutBodyJa:
+      "DROP WORLDは、建築・ランドスケープ・空間プレゼンテーションのためのCAD素材ショップです。平面、断面、立面、アクソメのシーンにすぐ配置できるように整理しています。",
   },
-  ja: {
-    all: "CADセット一覧",
-    plan: "平面CADセット",
-    section: "断面CADセット",
-    elevation: "立面CADセット",
-    axonometric: "アクソメCADセット",
-  },
+  categories: [],
+  genres: [
+    { id: "plan", en: "Plan", ja: "平面" },
+    { id: "section", en: "Section", ja: "断面" },
+    { id: "elevation", en: "Elevation", ja: "立面" },
+    { id: "axonometric", en: "Axonometric", ja: "アクソメ" },
+  ],
+  tags: [],
+  products: [],
+  sortOrders: { all: [], categories: {}, genres: {}, tags: {} },
 };
+
+let catalog = loadCatalog();
 
 const i18n = {
   en: {
@@ -155,7 +46,7 @@ const i18n = {
     "about.kicker": "About",
     "about.title": "Curated CAD fragments with the calm of a finished drawing.",
     "about.body1":
-      "Nezumi CAD is a prototype shop for landscape, architecture, and urban drawing assets. Each set is arranged for immediate placement into plans, sections, elevations, and axonometric scenes.",
+      "DROP WORLD is a CAD asset shop for landscape, architecture, and urban drawing assets. Each set is arranged for immediate placement into plans, sections, elevations, and axonometric scenes.",
     "about.body2":
       "The storefront keeps browsing visual and fast: minimal filters, precise previews, soft transitions, and a catalogue that feels closer to a drawing archive than a standard ecommerce shelf.",
     "product.quickView": "Quick View",
@@ -165,7 +56,7 @@ const i18n = {
     "product.set": "Set",
     "product.noResults": "No matching CAD sets found.",
     "svg.meta": "CAD BLOCKS / VECTOR / PNG",
-    "document.title": "Nezumi Cad",
+    "document.title": "DROP WORLD",
   },
   ja: {
     "nav.about": "About",
@@ -183,7 +74,7 @@ const i18n = {
     "about.kicker": "About",
     "about.title": "完成図面の静けさをまとった、使いやすいCAD素材。",
     "about.body1":
-      "Nezumi CADは、ランドスケープ、建築、都市表現のための図面素材ショップです。平面、断面、立面、アクソメのシーンにすぐ配置できるように整理しています。",
+      "DROP WORLDは、ランドスケープ、建築、都市表現のための図面素材ショップです。平面、断面、立面、アクソメのシーンにすぐ配置できるように整理しています。",
     "about.body2":
       "閲覧は視覚的で軽やかに。最小限のフィルター、精密なプレビュー、やわらかな動きで、一般的なEC棚よりも図面アーカイブに近い体験を目指しています。",
     "product.quickView": "詳細を見る",
@@ -193,21 +84,21 @@ const i18n = {
     "product.set": "セット",
     "product.noResults": "該当するCADセットがありません。",
     "svg.meta": "CADブロック / ベクター / PNG",
-    "document.title": "Nezumi Cad",
+    "document.title": "DROP WORLD",
   },
 };
 
 const grid = document.querySelector("#product-grid");
 const collectionTitle = document.querySelector("#collection-title");
-const filterButtons = [...document.querySelectorAll(".filter-button")];
-const menuButtons = [...document.querySelectorAll(".cad-menu button")];
+const collectionTools = document.querySelector(".collection-tools");
+const cadMenu = document.querySelector("#cad-menu");
 const navToggles = [...document.querySelectorAll("[data-menu-toggle]")];
 const navMenus = [...document.querySelectorAll(".nav-menu")];
 const languageButtons = [...document.querySelectorAll("[data-language]")];
 const searchInput = document.querySelector("#search-input");
 const cartCount = document.querySelector("#cart-count");
 const siteHeader = document.querySelector(".site-header");
-let activeCategory = "all";
+let activeFilter = "all";
 let activeLanguage = "en";
 let cartItems = 0;
 
@@ -216,6 +107,110 @@ const heroSlides = [...document.querySelectorAll(".hero-slide")];
 const HERO_SLIDE_INTERVAL = 3000;
 let activeSlide = 0;
 let heroTimer = window.setInterval(nextSlide, HERO_SLIDE_INTERVAL);
+
+function loadCatalog() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return normalizeCatalog(defaultCatalog);
+    return normalizeCatalog({ ...defaultCatalog, ...JSON.parse(stored) });
+  } catch {
+    return normalizeCatalog(defaultCatalog);
+  }
+}
+
+function normalizeCatalog(value) {
+  const next = { ...defaultCatalog, ...value };
+  next.store = { ...defaultCatalog.store, ...(value.store || {}) };
+  next.pages = { ...defaultCatalog.pages, ...(value.pages || {}) };
+  next.categories = Array.isArray(value.categories) ? value.categories : [];
+  next.genres = Array.isArray(value.genres) && value.genres.length ? value.genres : defaultCatalog.genres;
+  next.tags = Array.isArray(value.tags) ? value.tags : [];
+  next.products = Array.isArray(value.products) ? value.products.map(normalizeProduct).filter((product) => product.status === "Published") : [];
+  next.sortOrders = {
+    all: Array.isArray(value.sortOrders?.all) ? value.sortOrders.all : next.products.map((product) => product.id),
+    categories: value.sortOrders?.categories || {},
+    genres: value.sortOrders?.genres || {},
+    tags: value.sortOrders?.tags || {},
+  };
+  return next;
+}
+
+function normalizeProduct(product) {
+  const genre = product.genreId || product.category || "plan";
+  return {
+    id: product.id || product.slug || `product-${Math.random().toString(36).slice(2)}`,
+    title: product.titleEn || product.title || "Untitled CAD",
+    titleJa: product.titleJa || product.titleEn || product.title || "無題のCAD",
+    description: product.descriptionEn || "",
+    descriptionJa: product.descriptionJa || "",
+    categoryId: product.categoryId || "",
+    genreId: genre,
+    type: product.type || genre,
+    status: product.status || "Draft",
+    price: `$${Number(product.price || 0).toFixed(2)}`,
+    priceValue: Number(product.price || 0),
+    fileName: product.fileName || "",
+    thumbnail: product.thumbnail || "",
+    template: templateFor(product.type || genre),
+    accent: accentFor(product.type || genre),
+    tags: Array.isArray(product.tags) ? product.tags : [],
+    order: Number(product.order || 0),
+  };
+}
+
+function templateFor(type = "") {
+  const key = type.toLowerCase();
+  if (key.includes("section")) return "street";
+  if (key.includes("elevation")) return "elevation";
+  if (key.includes("axon")) return "axon";
+  return "plan";
+}
+
+function accentFor(type = "") {
+  const key = type.toLowerCase();
+  if (key.includes("section")) return "#6570df";
+  if (key.includes("elevation")) return "#a06a55";
+  if (key.includes("axon")) return "#72aaa1";
+  if (key.includes("bundle")) return "#9d7a5e";
+  return "#83b8b0";
+}
+
+function getCategory(id) {
+  return catalog.categories.find((item) => item.id === id) || { id, en: "Unassigned", ja: "未設定" };
+}
+
+function getGenre(id) {
+  return catalog.genres.find((item) => item.id === id) || { id, en: id || "CAD", ja: id || "CAD" };
+}
+
+function getTag(id) {
+  return catalog.tags.find((item) => item.id === id) || { id, en: id, ja: id };
+}
+
+function scopeParts(scopeKey = activeFilter) {
+  if (scopeKey === "all") return ["all", ""];
+  const [type, id] = scopeKey.split(":");
+  return [type, id];
+}
+
+function getScopeOrder(scopeKey = activeFilter) {
+  const [type, id] = scopeParts(scopeKey);
+  if (type === "category") return catalog.sortOrders.categories[id] || [];
+  if (type === "genre") return catalog.sortOrders.genres[id] || [];
+  if (type === "tag") return catalog.sortOrders.tags[id] || [];
+  return catalog.sortOrders.all || [];
+}
+
+function sortByScope(list, scopeKey = activeFilter) {
+  const order = getScopeOrder(scopeKey);
+  const rank = new Map(order.map((id, index) => [id, index]));
+  return [...list].sort((a, b) => {
+    const aRank = rank.has(a.id) ? rank.get(a.id) : Number.MAX_SAFE_INTEGER;
+    const bRank = rank.has(b.id) ? rank.get(b.id) : Number.MAX_SAFE_INTEGER;
+    if (aRank !== bRank) return aRank - bRank;
+    return Number(a.order || 0) - Number(b.order || 0);
+  });
+}
 
 const revealObserver = new IntersectionObserver(
   (entries) => {
@@ -280,18 +275,18 @@ function closeMenus(exceptId = "") {
   });
 }
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    setCategory(button.dataset.category);
-  });
+collectionTools.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-filter]");
+  if (!button) return;
+  setFilter(button.dataset.filter);
 });
 
-menuButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    setCategory(button.dataset.category);
-    closeMenus();
-    document.querySelector("#products").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+cadMenu.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-filter]");
+  if (!button) return;
+  setFilter(button.dataset.filter);
+  closeMenus();
+  document.querySelector("#products").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 languageButtons.forEach((button) => {
@@ -327,30 +322,99 @@ function setLanguage(language) {
   languageButtons.forEach((button) => {
     button.classList.toggle("is-current", button.dataset.language === activeLanguage);
   });
-  collectionTitle.textContent = categoryLabels[activeLanguage][activeCategory];
+  applyCatalogCopy();
+  renderDynamicFilters();
+  collectionTitle.textContent = filterTitle(activeFilter);
   renderProducts();
 }
 
-function setCategory(category) {
-  activeCategory = category;
-  filterButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.category === category);
+function setFilter(filter) {
+  activeFilter = filter;
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.filter === filter);
   });
-  collectionTitle.textContent = categoryLabels[activeLanguage][category];
+  collectionTitle.textContent = filterTitle(filter);
   renderProducts();
+}
+
+function renderDynamicFilters() {
+  const filterItems = [
+    { key: "all", label: t("category.all") },
+    ...catalog.genres.map((item) => ({ key: `genre:${item.id}`, label: localized(item) })),
+    ...catalog.categories.map((item) => ({ key: `category:${item.id}`, label: localized(item) })),
+    ...catalog.tags.map((item) => ({ key: `tag:${item.id}`, label: `#${localized(item)}` })),
+  ];
+
+  collectionTools.innerHTML = filterItems
+    .map(
+      (item) => `
+        <button class="filter-button ${item.key === activeFilter ? "is-active" : ""}" type="button" data-filter="${escapeAttr(item.key)}">
+          ${escapeHtml(item.label)}
+        </button>
+      `,
+    )
+    .join("");
+
+  cadMenu.innerHTML = catalog.genres
+    .map(
+      (item) => `
+        <button class="${`genre:${item.id}` === activeFilter ? "is-current" : ""}" type="button" data-filter="genre:${escapeAttr(item.id)}">
+          ${escapeHtml(localized(item))}
+        </button>
+      `,
+    )
+    .join("");
+}
+
+function applyCatalogCopy() {
+  const first = document.querySelector(".brand span:first-child");
+  const second = document.querySelector(".brand span:last-child");
+  const nameParts = (catalog.store.name || "DROP WORLD").split(/\s+/);
+  first.textContent = nameParts[0] || "DROP";
+  second.textContent = nameParts.slice(1).join(" ") || "WORLD";
+  document.title = catalog.store.name || t("document.title");
+
+  document.querySelector("[data-i18n='hero.eyebrow']").textContent =
+    activeLanguage === "ja" ? catalog.pages.heroEyebrowJa : catalog.pages.heroEyebrowEn;
+  document.querySelector("[data-i18n='hero.title']").textContent =
+    activeLanguage === "ja" ? catalog.pages.heroTitleJa : catalog.pages.heroTitleEn;
+  document.querySelector("[data-i18n='hero.cta']").textContent = activeLanguage === "ja" ? t("hero.cta") : catalog.pages.heroCtaEn;
+  document.querySelector("[data-i18n='about.title']").textContent =
+    activeLanguage === "ja" ? catalog.pages.aboutTitleJa : catalog.pages.aboutTitleEn;
+  document.querySelector("[data-i18n='about.body1']").textContent =
+    activeLanguage === "ja" ? catalog.pages.aboutBodyJa : catalog.pages.aboutBodyEn;
+  document.querySelector("[data-i18n='about.body2']").textContent =
+    activeLanguage === "ja"
+      ? "商品データ、分類、タグ、固定ページは管理画面から編集できます。本番ではConoHaのPHP/MySQLに接続します。"
+      : "Product data, taxonomy, tags, and fixed pages can be edited from the admin. Production storage will connect to ConoHa PHP/MySQL.";
+}
+
+function filterTitle(filter) {
+  const [type, id] = scopeParts(filter);
+  if (type === "category") return `${localized(getCategory(id))} CAD Sets`;
+  if (type === "genre") return `${localized(getGenre(id))} CAD Sets`;
+  if (type === "tag") return `#${localized(getTag(id))}`;
+  return activeLanguage === "ja" ? "CADセット一覧" : "All CAD Sets";
 }
 
 function renderProducts() {
   const query = searchInput.value.trim().toLowerCase();
-  const filtered = products.filter((product) => {
-    const matchesCategory = activeCategory === "all" || product.category === activeCategory;
-    const searchable = `${product.title} ${product.titleJa} ${product.category} ${label(product.category)} ${product.tags}`.toLowerCase();
-    return matchesCategory && searchable.includes(query);
+  const [filterType, filterId] = scopeParts(activeFilter);
+  const filtered = sortByScope(catalog.products, activeFilter).filter((product) => {
+    const matchesFilter =
+      filterType === "all" ||
+      (filterType === "category" && product.categoryId === filterId) ||
+      (filterType === "genre" && product.genreId === filterId) ||
+      (filterType === "tag" && product.tags.includes(filterId));
+    const tagText = product.tags.map((tagId) => localized(getTag(tagId))).join(" ");
+    const searchable =
+      `${product.title} ${product.titleJa} ${localized(getCategory(product.categoryId))} ${localized(getGenre(product.genreId))} ${tagText} ${product.fileName}`.toLowerCase();
+    return matchesFilter && searchable.includes(query);
   });
 
   grid.innerHTML = filtered.length
     ? filtered.map((product, index) => productCard(product, index)).join("")
-    : `<p class="no-results">${t("product.noResults")}</p>`;
+    : `<p class="no-results">${catalog.products.length ? t("product.noResults") : emptyCatalogMessage()}</p>`;
 
   grid.querySelectorAll(".product-card").forEach((card, index) => {
     card.style.transitionDelay = `${Math.min(index * 55, 440)}ms`;
@@ -373,11 +437,13 @@ function renderProducts() {
 
 function productCard(product, index) {
   const title = productTitle(product);
-  const category = label(product.category);
+  const genre = localized(getGenre(product.genreId));
+  const category = product.categoryId ? localized(getCategory(product.categoryId)) : genre;
+  const tags = product.tags.map((tagId) => `#${localized(getTag(tagId))}`).join(" ");
   return `
     <article class="product-card" style="--accent: ${product.accent}">
       <div class="preview" aria-label="${title} preview">
-        ${cadSvg(product, index, "main")}
+        ${product.thumbnail ? `<img class="uploaded-preview main" src="${escapeAttr(product.thumbnail)}" alt="${escapeAttr(title)}" />` : cadSvg(product, index, "main")}
         ${cadSvg(product, index + 9, "alt")}
         <button class="quick-view" type="button" aria-label="${t("product.quickView")} ${title}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
@@ -385,8 +451,9 @@ function productCard(product, index) {
         </button>
       </div>
       <div class="product-info">
-        <p class="product-category">${category} / ${t("product.meta")}</p>
+        <p class="product-category">${category} / ${genre} / ${t("product.meta")}</p>
         <h3 class="product-title">${title}</h3>
+        <p class="product-tags">${tags}</p>
         <div class="product-row">
           <span class="price">${product.price}</span>
           <button class="add-button" type="button" aria-label="${t("product.add")} ${title}">
@@ -400,11 +467,35 @@ function productCard(product, index) {
 }
 
 function label(category) {
-  return t(`category.${category}`);
+  return localized(getGenre(category));
 }
 
 function productTitle(product) {
   return activeLanguage === "ja" ? product.titleJa : product.title;
+}
+
+function localized(item) {
+  if (!item) return "";
+  return activeLanguage === "ja" ? item.ja || item.en || item.id : item.en || item.ja || item.id;
+}
+
+function emptyCatalogMessage() {
+  return activeLanguage === "ja"
+    ? "まだ公開中のCAD商品がありません。管理画面から商品を追加するとここに表示されます。"
+    : "No published CAD items yet. Upload a product in the admin to display it here.";
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(value = "") {
+  return escapeHtml(value);
 }
 
 function cadSvg(product, seed, tone) {
@@ -431,7 +522,7 @@ function cadSvg(product, seed, tone) {
       <rect x="22" y="22" width="596" height="596" fill="url(#grid-${product.id}-${tone})" opacity="${alternate ? 0.42 : 0.28}" />
       ${body}
       <g transform="translate(42 652)">
-        <text x="0" y="0" fill="#2a2f2d" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">${label(product.category)} ${t("product.set")}</text>
+        <text x="0" y="0" fill="#2a2f2d" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">${localized(getGenre(product.genreId))} ${t("product.set")}</text>
         <text x="0" y="28" fill="#7a817e" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700">${t("svg.meta")}</text>
       </g>
     </svg>

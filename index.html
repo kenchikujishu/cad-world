@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nezumi Cad</title>
+    <title>DROP WORLD</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header" aria-label="Primary navigation">
-      <a class="brand" href="#home" aria-label="Nezumi CAD home">
-        <span>NEZUMI</span>
-        <span>CAD</span>
+      <a class="brand" href="#home" aria-label="DROP WORLD home">
+        <span>DROP</span>
+        <span>WORLD</span>
       </a>
 
       <nav class="main-nav">
@@ -23,10 +23,10 @@
             </svg>
           </button>
           <div class="nav-menu cad-menu" id="cad-menu" aria-label="CAD categories">
-            <button type="button" data-category="plan" data-i18n="category.plan">Plan</button>
-            <button type="button" data-category="section" data-i18n="category.section">Section</button>
-            <button type="button" data-category="elevation" data-i18n="category.elevation">Elevation</button>
-            <button type="button" data-category="axonometric" data-i18n="category.axonometric">Axonometric</button>
+            <button type="button" data-filter="genre:plan" data-i18n="category.plan">Plan</button>
+            <button type="button" data-filter="genre:section" data-i18n="category.section">Section</button>
+            <button type="button" data-filter="genre:elevation" data-i18n="category.elevation">Elevation</button>
+            <button type="button" data-filter="genre:axonometric" data-i18n="category.axonometric">Axonometric</button>
           </div>
         </div>
         <div class="nav-item">
@@ -96,7 +96,7 @@
         <div class="about-grid">
           <h2 data-i18n="about.title">Curated CAD fragments with the calm of a finished drawing.</h2>
           <p>
-            <span data-i18n="about.body1">Nezumi CAD is a prototype shop for landscape, architecture, and urban drawing assets. Each set is arranged for immediate placement into plans, sections, elevations, and axonometric scenes.</span>
+            <span data-i18n="about.body1">DROP WORLD is a CAD asset shop for landscape, architecture, and urban drawing assets. Each set is arranged for immediate placement into plans, sections, elevations, and axonometric scenes.</span>
           </p>
           <p>
             <span data-i18n="about.body2">The storefront keeps browsing visual and fast: minimal filters, precise previews, soft transitions, and a catalogue that feels closer to a drawing archive than a standard ecommerce shelf.</span>
@@ -111,11 +111,7 @@
             <h2 id="collection-title">All CAD Sets</h2>
           </div>
           <div class="collection-tools" aria-label="Product filters">
-            <button class="filter-button is-active" type="button" data-category="all" data-i18n="category.all">All</button>
-            <button class="filter-button" type="button" data-category="plan" data-i18n="category.plan">Plan</button>
-            <button class="filter-button" type="button" data-category="section" data-i18n="category.section">Section</button>
-            <button class="filter-button" type="button" data-category="elevation" data-i18n="category.elevation">Elevation</button>
-            <button class="filter-button" type="button" data-category="axonometric" data-i18n="category.axonometric">Axonometric</button>
+            <button class="filter-button is-active" type="button" data-filter="all" data-i18n="category.all">All</button>
           </div>
         </div>
 

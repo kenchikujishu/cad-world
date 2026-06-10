@@ -3,21 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nezumi CAD Admin</title>
+    <title>DROP WORLD Admin</title>
     <link rel="stylesheet" href="admin.css" />
   </head>
   <body>
     <main class="auth-screen is-hidden" id="auth-screen">
       <section class="auth-panel" aria-labelledby="login-title">
         <div class="auth-brand">
-          <span>NEZUMI</span>
-          <span>CAD ADMIN</span>
+          <span>DROP</span>
+          <span>WORLD ADMIN</span>
         </div>
         <form class="login-form" id="login-form">
           <h1 id="login-title">Operator Login</h1>
           <label>
             Email
-            <input type="email" id="login-email" autocomplete="username" value="admin@nezumi.cad" required />
+            <input type="email" id="login-email" autocomplete="username" value="admin@dropworld.space" required />
           </label>
           <label>
             Password
@@ -34,16 +34,12 @@
 
     <div class="admin-shell" id="admin-shell">
       <aside class="sidebar" aria-label="Admin navigation">
-        <a class="admin-brand" href="#dashboard">
-          <span>NEZUMI</span>
-          <span>CAD ADMIN</span>
+        <a class="admin-brand" href="#products">
+          <span>DROP</span>
+          <span>WORLD ADMIN</span>
         </a>
         <nav class="admin-nav">
-          <button class="nav-link is-active" type="button" data-view="dashboard">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4z" /><path d="M13 20h7V4h-7z" /><path d="M4 20h7v-5H4z" /></svg>
-            Dashboard
-          </button>
-          <button class="nav-link" type="button" data-view="products">
+          <button class="nav-link is-active" type="button" data-view="products">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></svg>
             CAD Items
           </button>
@@ -55,13 +51,13 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" /><path d="M7 12h10" /><path d="M10 18h4" /></svg>
             Taxonomy
           </button>
-          <button class="nav-link" type="button" data-view="sales">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" /><path d="M4 19h16" /><path d="M8 16v-5" /><path d="M13 16V8" /><path d="M18 16v-9" /></svg>
-            Sales
+          <button class="nav-link" type="button" data-view="pages">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z" /><path d="M9 8h6" /><path d="M9 12h6" /><path d="M9 16h4" /></svg>
+            Fixed Pages
           </button>
-          <button class="nav-link" type="button" data-view="settings">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5z" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .2l-.4.2a1.7 1.7 0 0 0-.9 1.6v.2h-4v-.2a1.7 1.7 0 0 0-.9-1.6l-.4-.2a1.7 1.7 0 0 0-2-.2l-.2.1-2-3.4.1-.1A1.7 1.7 0 0 0 4.6 15l-.2-.5a1.7 1.7 0 0 0-1.5-1.1h-.2V9.6h.2a1.7 1.7 0 0 0 1.5-1.1l.2-.5a1.7 1.7 0 0 0-.3-1.9L4.2 6l2-3.4.2.1a1.7 1.7 0 0 0 2-.2l.4-.2A1.7 1.7 0 0 0 9.7.7V.5h4v.2a1.7 1.7 0 0 0 .9 1.6l.4.2a1.7 1.7 0 0 0 2 .2l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9l.2.5a1.7 1.7 0 0 0 1.5 1.1h.2v3.8h-.2a1.7 1.7 0 0 0-1.5 1.1z" /></svg>
-            Settings
+          <button class="nav-link" type="button" data-view="storage">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="7" ry="3" /><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" /><path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" /></svg>
+            Storage
           </button>
         </nav>
         <a class="store-link" href="index.html" target="_blank" rel="noreferrer">Open storefront</a>
@@ -70,11 +66,12 @@
       <main class="workspace">
         <header class="topbar">
           <div>
-            <p class="kicker" id="view-kicker">Dashboard</p>
-            <h1 id="view-title">Today at Nezumi CAD</h1>
+            <p class="kicker" id="view-kicker">CAD Items</p>
+            <h1 id="view-title">Product Library</h1>
           </div>
           <div class="topbar-actions">
-            <button class="ghost-button" type="button" id="seed-button">Reset demo</button>
+            <button class="ghost-button" type="button" id="export-button">Export JSON</button>
+            <button class="ghost-button" type="button" id="reset-button">Clear local data</button>
             <button class="ghost-button" type="button" id="logout-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
               Logout
@@ -82,32 +79,13 @@
           </div>
         </header>
 
-        <section class="view is-active" id="view-dashboard">
-          <div class="metric-grid" id="metric-grid"></div>
-          <div class="dashboard-grid">
-            <article class="panel">
-              <div class="panel-head">
-                <h2>Revenue Trend</h2>
-                <span>Last 7 days</span>
-              </div>
-              <div class="bar-chart" id="bar-chart"></div>
-            </article>
-            <article class="panel">
-              <div class="panel-head">
-                <h2>Publishing Queue</h2>
-                <span id="queue-count">0 items</span>
-              </div>
-              <div class="queue-list" id="queue-list"></div>
-            </article>
-          </div>
-        </section>
-
-        <section class="view" id="view-products">
+        <section class="view is-active" id="view-products">
           <div class="toolbar">
             <div class="search-field">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></svg>
-              <input type="search" id="product-search" placeholder="Search title, slug, category" />
+              <input type="search" id="product-search" placeholder="Search title, slug, category, #tag" />
             </div>
+            <select id="scope-filter" aria-label="Sort context"></select>
             <select id="status-filter" aria-label="Status filter">
               <option value="all">All status</option>
               <option value="Published">Published</option>
@@ -119,16 +97,17 @@
               New CAD
             </button>
           </div>
+          <p class="helper-copy">Sort order is saved per view: All products, each category, each genre, and each #tag can have a different order.</p>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Order</th>
+                  <th>Sort</th>
                   <th>CAD data</th>
                   <th>Taxonomy</th>
+                  <th># Tags</th>
                   <th>Price</th>
                   <th>Status</th>
-                  <th>Sold</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -203,12 +182,16 @@
                   </select>
                 </label>
               </div>
+              <fieldset class="tag-fieldset">
+                <legend># Tags</legend>
+                <div class="tag-checks" id="tag-checks"></div>
+              </fieldset>
             </article>
 
             <aside class="panel upload-panel">
               <div class="panel-head">
                 <h2>Files</h2>
-                <span>DWG / ZIP / PNG</span>
+                <span>Demo storage</span>
               </div>
               <label class="drop-zone">
                 <input type="file" id="cad-file" accept=".zip,.dwg,.dxf,.ai,.pdf,.png,.jpg,.jpeg" />
@@ -220,6 +203,7 @@
                 <input type="file" id="thumbnail-file" accept="image/*" />
               </label>
               <div class="thumb-preview" id="thumb-preview"></div>
+              <p class="helper-copy">Local demo saves the thumbnail in browser storage and keeps only the package file name. Production upload needs the PHP/MySQL flow described in Storage.</p>
               <div class="editor-actions">
                 <button class="ghost-button" type="button" id="clear-form-button">Clear</button>
                 <button class="primary-button" type="submit">
@@ -257,77 +241,123 @@
               </form>
               <div class="taxonomy-list" id="genre-list"></div>
             </article>
-          </div>
-        </section>
-
-        <section class="view" id="view-sales">
-          <div class="dashboard-grid">
-            <article class="panel">
+            <article class="panel wide-panel">
               <div class="panel-head">
-                <h2>Orders</h2>
-                <span id="orders-count">0</span>
+                <h2># Tags</h2>
+                <span id="tag-count">0</span>
               </div>
-              <div class="table-wrap">
-                <table class="data-table compact">
-                  <thead>
-                    <tr>
-                      <th>Order</th>
-                      <th>Customer</th>
-                      <th>CAD</th>
-                      <th>Total</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="orders-table"></tbody>
-                </table>
-              </div>
-            </article>
-            <article class="panel">
-              <div class="panel-head">
-                <h2>Best Sellers</h2>
-                <span>Units</span>
-              </div>
-              <div class="seller-list" id="seller-list"></div>
+              <form class="inline-form" id="tag-form">
+                <input type="text" id="tag-en" placeholder="English tag" required />
+                <input type="text" id="tag-ja" placeholder="日本語タグ" required />
+                <button class="primary-button" type="submit">Add</button>
+              </form>
+              <div class="taxonomy-list" id="tag-list"></div>
             </article>
           </div>
         </section>
 
-        <section class="view" id="view-settings">
-          <article class="panel settings-panel">
+        <section class="view" id="view-pages">
+          <form class="panel pages-panel" id="pages-form">
             <div class="panel-head">
-              <h2>Publishing Settings</h2>
-              <span>Demo</span>
+              <h2>Fixed Page Copy</h2>
+              <span>Storefront text</span>
             </div>
-            <div class="settings-grid">
+            <div class="form-row two">
               <label>
                 Store Name
-                <input type="text" value="Nezumi CAD" />
+                <input type="text" id="store-name" required />
               </label>
               <label>
-                Default Currency
-                <select>
-                  <option>USD</option>
-                  <option>JPY</option>
-                  <option>EUR</option>
-                </select>
-              </label>
-              <label>
-                Approval Flow
-                <select>
-                  <option>Draft → Review → Published</option>
-                  <option>Draft → Published</option>
-                </select>
-              </label>
-              <label>
-                Export Format
-                <select>
-                  <option>CSV + ZIP</option>
-                  <option>WordPress CSV</option>
-                  <option>WooCommerce CSV</option>
-                </select>
+                Hero CTA EN
+                <input type="text" id="hero-cta-en" required />
               </label>
             </div>
-          </article>
+            <div class="form-row two">
+              <label>
+                Hero Eyebrow EN
+                <input type="text" id="hero-eyebrow-en" required />
+              </label>
+              <label>
+                Hero Eyebrow JA
+                <input type="text" id="hero-eyebrow-ja" required />
+              </label>
+            </div>
+            <div class="form-row two">
+              <label>
+                Hero Title EN
+                <textarea id="hero-title-en" rows="3" required></textarea>
+              </label>
+              <label>
+                Hero Title JA
+                <textarea id="hero-title-ja" rows="3" required></textarea>
+              </label>
+            </div>
+            <div class="form-row two">
+              <label>
+                About Title EN
+                <textarea id="about-title-en" rows="3" required></textarea>
+              </label>
+              <label>
+                About Title JA
+                <textarea id="about-title-ja" rows="3" required></textarea>
+              </label>
+            </div>
+            <div class="form-row two">
+              <label>
+                About Body EN
+                <textarea id="about-body-en" rows="6" required></textarea>
+              </label>
+              <label>
+                About Body JA
+                <textarea id="about-body-ja" rows="6" required></textarea>
+              </label>
+            </div>
+            <div class="editor-actions">
+              <button class="primary-button" type="submit">Save page copy</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="view" id="view-storage">
+          <div class="storage-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <h2>Current Demo Storage</h2>
+                <span>Local only</span>
+              </div>
+              <ul class="storage-list">
+                <li>Products, categories, genres, tags, fixed page copy, and sort orders are saved to browser localStorage.</li>
+                <li>Thumbnail images are saved as browser data URLs for preview only.</li>
+                <li>CAD package files are not uploaded to ConoHa in this demo; the admin keeps the file name only.</li>
+                <li>The storefront reads the same localStorage key, so one browser can test “upload → display” immediately.</li>
+              </ul>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>ConoHa Production Flow</h2>
+                <span>Next build</span>
+              </div>
+              <ol class="storage-list">
+                <li>Admin login is handled by PHP sessions.</li>
+                <li>CAD packages and thumbnails are uploaded to `public_html/dropworld.space/uploads/`.</li>
+                <li>Product metadata is saved in ConoHa MySQL tables.</li>
+                <li>The storefront fetches published products from a small PHP JSON API.</li>
+                <li>Stripe handles checkout, payment status, and revenue reports.</li>
+              </ol>
+            </article>
+            <article class="panel wide-panel">
+              <div class="panel-head">
+                <h2>Suggested Tables</h2>
+                <span>MySQL</span>
+              </div>
+              <pre class="schema-box">products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, package_path, thumbnail_path, created_at, updated_at)
+categories(id, slug, name_en, name_ja)
+genres(id, slug, name_en, name_ja)
+tags(id, slug, name_en, name_ja)
+product_tags(product_id, tag_id)
+sort_orders(scope_type, scope_id, product_ids_json)</pre>
+            </article>
+          </div>
         </section>
       </main>
     </div>
