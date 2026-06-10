@@ -2,6 +2,7 @@ const STORAGE_KEY = "dropworld_catalog_state";
 
 const defaultCatalog = {
   store: { name: "DROP WORLD" },
+  settings: { watermarkImage: "" },
   pages: {
     heroEyebrowEn: "Digital drawing assets for spatial stories",
     heroEyebrowJa: "空間の物語のためのデジタル図面素材",
@@ -121,6 +122,7 @@ function loadCatalog() {
 function normalizeCatalog(value) {
   const next = { ...defaultCatalog, ...value };
   next.store = { ...defaultCatalog.store, ...(value.store || {}) };
+  next.settings = { ...defaultCatalog.settings, ...(value.settings || {}) };
   next.pages = { ...defaultCatalog.pages, ...(value.pages || {}) };
   next.categories = Array.isArray(value.categories) ? value.categories : [];
   next.genres = Array.isArray(value.genres) && value.genres.length ? value.genres : defaultCatalog.genres;
@@ -137,6 +139,7 @@ function normalizeCatalog(value) {
 
 function normalizeProduct(product) {
   const genre = product.genreId || product.category || "plan";
+  const primaryImage = product.primaryImage || product.thumbnail || "";
   return {
     id: product.id || product.slug || `product-${Math.random().toString(36).slice(2)}`,
     title: product.titleEn || product.title || "Untitled CAD",
@@ -150,7 +153,9 @@ function normalizeProduct(product) {
     price: `$${Number(product.price || 0).toFixed(2)}`,
     priceValue: Number(product.price || 0),
     fileName: product.fileName || "",
-    thumbnail: product.thumbnail || "",
+    primaryImage,
+    secondaryImage: product.secondaryImage || "",
+    thumbnail: primaryImage,
     template: templateFor(product.type || genre),
     accent: accentFor(product.type || genre),
     tags: Array.isArray(product.tags) ? product.tags : [],
@@ -440,19 +445,25 @@ function productCard(product, index) {
   const genre = localized(getGenre(product.genreId));
   const category = product.categoryId ? localized(getCategory(product.categoryId)) : genre;
   const tags = product.tags.map((tagId) => `#${localized(getTag(tagId))}`).join(" ");
+  const href = productUrl(product);
+  const primaryImage = product.primaryImage || product.thumbnail;
+  const secondaryImage = product.secondaryImage;
   return `
     <article class="product-card" style="--accent: ${product.accent}">
       <div class="preview" aria-label="${title} preview">
-        ${product.thumbnail ? `<img class="uploaded-preview main" src="${escapeAttr(product.thumbnail)}" alt="${escapeAttr(title)}" />` : cadSvg(product, index, "main")}
-        ${cadSvg(product, index + 9, "alt")}
-        <button class="quick-view" type="button" aria-label="${t("product.quickView")} ${title}">
+        <a class="preview-link" href="${href}" aria-label="${t("product.quickView")} ${escapeAttr(title)}">
+          ${primaryImage ? `<img class="uploaded-preview main" src="${escapeAttr(primaryImage)}" alt="${escapeAttr(title)}" />` : cadSvg(product, index, "main")}
+          ${secondaryImage ? `<img class="uploaded-preview alt" src="${escapeAttr(secondaryImage)}" alt="" />` : cadSvg(product, index + 9, "alt")}
+          ${watermarkMarkup("card")}
+        </a>
+        <a class="quick-view" href="${href}" aria-label="${t("product.quickView")} ${escapeAttr(title)}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
           ${t("product.quickView")}
-        </button>
+        </a>
       </div>
       <div class="product-info">
         <p class="product-category">${category} / ${genre} / ${t("product.meta")}</p>
-        <h3 class="product-title">${title}</h3>
+        <h3 class="product-title"><a href="${href}">${title}</a></h3>
         <p class="product-tags">${tags}</p>
         <div class="product-row">
           <span class="price">${product.price}</span>
@@ -464,6 +475,15 @@ function productCard(product, index) {
       </div>
     </article>
   `;
+}
+
+function productUrl(product) {
+  return `product.html?id=${encodeURIComponent(product.id)}`;
+}
+
+function watermarkMarkup(context = "card") {
+  if (!catalog.settings.watermarkImage) return "";
+  return `<img class="watermark-overlay watermark-${context}" src="${escapeAttr(catalog.settings.watermarkImage)}" alt="" />`;
 }
 
 function label(category) {

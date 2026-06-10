@@ -588,6 +588,8 @@ textarea:focus {
 
 .mini-thumb,
 .thumb-preview {
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
   background:
     linear-gradient(rgba(23, 24, 23, 0.04) 1px, transparent 1px),
@@ -792,14 +794,29 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.5);
 }
 
-.thumb-preview {
+.preview-upload-grid,
+.preview-stack {
   display: grid;
-  place-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.thumb-preview {
   aspect-ratio: 1.15 / 1;
-  margin: 14px 0;
+  margin: 0 0 14px;
   color: var(--muted);
   font-size: 12px;
   overflow: hidden;
+}
+
+.watermark-preview {
+  min-height: 150px;
+  margin: 10px 0 12px;
+}
+
+.watermark-preview img {
+  object-fit: contain;
+  padding: 12px;
 }
 
 .editor-actions {
@@ -900,6 +917,8 @@ textarea:focus {
   .form-row.two,
   .form-row.three,
   .settings-grid,
+  .preview-upload-grid,
+  .preview-stack,
   .inline-form {
     grid-template-columns: 1fr;
   }

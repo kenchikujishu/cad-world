@@ -530,6 +530,13 @@ svg {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
+.preview-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  color: inherit;
+}
+
 .preview svg {
   position: absolute;
   inset: 0;
@@ -559,6 +566,18 @@ svg {
   filter: saturate(0.92);
 }
 
+.watermark-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.56;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
 .product-card:hover .preview .main {
   opacity: 0;
   transform: scale(1.018);
@@ -572,6 +591,7 @@ svg {
 
 .quick-view {
   position: absolute;
+  z-index: 4;
   left: 12px;
   bottom: 12px;
   display: inline-flex;
@@ -621,6 +641,10 @@ svg {
   font-weight: 520;
   line-height: 1.08;
   letter-spacing: 0;
+}
+
+.product-title a:hover {
+  color: var(--clay);
 }
 
 .product-tags {
@@ -700,6 +724,241 @@ svg {
   transform: translateY(0);
 }
 
+.detail-header::before {
+  opacity: 1;
+}
+
+.product-page {
+  min-height: 100vh;
+  padding: calc(var(--header-height) + 42px) clamp(18px, 4vw, 70px) 84px;
+  background: var(--paper-soft);
+}
+
+.product-detail {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.05fr) minmax(300px, 0.72fr);
+  gap: clamp(32px, 6vw, 104px);
+  align-items: start;
+}
+
+.detail-gallery {
+  display: grid;
+  gap: 14px;
+}
+
+.detail-main-image,
+.related-image {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(23, 24, 23, 0.12);
+  background:
+    linear-gradient(rgba(23, 24, 23, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 24, 23, 0.035) 1px, transparent 1px),
+    #f6f6f3;
+  background-size: 30px 30px;
+}
+
+.detail-main-image {
+  aspect-ratio: 1 / 1;
+}
+
+.detail-main-image img,
+.detail-main-image svg,
+.related-image img,
+.related-image svg,
+.detail-thumbs img,
+.detail-thumbs svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-main-image svg,
+.related-image svg,
+.detail-thumbs svg {
+  display: block;
+}
+
+.detail-thumbs {
+  display: flex;
+  gap: 10px;
+}
+
+.detail-thumbs button {
+  width: 96px;
+  aspect-ratio: 1 / 0.68;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(23, 24, 23, 0.15);
+  background: var(--white);
+  opacity: 0.62;
+  transition:
+    opacity 220ms ease,
+    border-color 220ms ease;
+}
+
+.detail-thumbs button.is-active,
+.detail-thumbs button:hover {
+  opacity: 1;
+  border-color: rgba(23, 24, 23, 0.42);
+}
+
+.detail-copy {
+  display: grid;
+  gap: 18px;
+  padding-top: 4px;
+}
+
+.detail-copy h1,
+.product-missing h1,
+.related-section h2 {
+  margin: 0;
+  color: #242927;
+  font-size: clamp(38px, 4.5vw, 72px);
+  font-weight: 760;
+  line-height: 1.03;
+  letter-spacing: 0;
+}
+
+.detail-price {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 760;
+}
+
+.rating {
+  font-size: 29px;
+  letter-spacing: 0;
+}
+
+.detail-description,
+.product-missing p {
+  margin: 0;
+  color: #3f4643;
+  font-size: clamp(16px, 1.3vw, 20px);
+  line-height: 1.68;
+}
+
+.detail-specs {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-specs div {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.detail-specs dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.detail-specs dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.detail-actions,
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primary-store-button,
+.secondary-store-button,
+.share-row button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid rgba(23, 24, 23, 0.16);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.primary-store-button {
+  color: var(--white);
+  background: var(--ink);
+}
+
+.secondary-store-button:hover,
+.share-row button:hover {
+  background: var(--white);
+  border-color: rgba(23, 24, 23, 0.34);
+}
+
+.primary-store-button:hover {
+  background: #303633;
+}
+
+.share-row button {
+  min-height: 38px;
+  padding: 0 14px;
+}
+
+.related-section {
+  margin-top: clamp(72px, 9vw, 132px);
+}
+
+.related-section h2 {
+  margin-bottom: 42px;
+  text-align: center;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+
+.related-card {
+  display: grid;
+  gap: 13px;
+  text-align: center;
+}
+
+.related-image {
+  display: block;
+  aspect-ratio: 1 / 0.76;
+}
+
+.related-card strong {
+  color: #303633;
+  font-size: clamp(18px, 1.4vw, 24px);
+  font-weight: 540;
+  line-height: 1.2;
+}
+
+.related-card span:last-child {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.product-missing {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+  min-height: 42vh;
+  align-content: center;
+}
+
 @media (max-width: 1180px) {
   .site-header {
     grid-template-columns: minmax(130px, 210px) 1fr;
@@ -744,6 +1003,14 @@ svg {
 
   .product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .product-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -808,6 +1075,21 @@ svg {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .product-page {
+    padding-top: calc(var(--header-height) + 28px);
+  }
+
+  .detail-copy h1,
+  .product-missing h1,
+  .related-section h2 {
+    font-size: clamp(34px, 11vw, 54px);
+  }
+
+  .detail-specs div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -832,6 +1114,19 @@ svg {
 
   .product-grid {
     grid-template-columns: 1fr;
+  }
+
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-thumbs button {
+    width: 78px;
+  }
+
+  .primary-store-button,
+  .secondary-store-button {
+    width: 100%;
   }
 
   .product-title {

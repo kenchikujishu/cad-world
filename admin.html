@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DROP WORLD Admin</title>
-    <link rel="stylesheet" href="admin.css?v=20260610-admin-flow-2" />
+    <link rel="stylesheet" href="admin.css?v=20260610-product-detail-1" />
   </head>
   <body>
     <main class="auth-screen is-hidden" id="auth-screen">
@@ -198,12 +198,21 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4" /><path d="m7 9 5-5 5 5" /><path d="M20 16v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3" /></svg>
                 <span id="file-name">Select package</span>
               </label>
-              <label class="thumbnail-picker">
-                Thumbnail
-                <input type="file" id="thumbnail-file" accept="image/*" />
-              </label>
-              <div class="thumb-preview" id="thumb-preview"></div>
-              <p class="helper-copy">Local demo saves the thumbnail in browser storage and keeps only the package file name. Production upload needs the PHP/MySQL flow described in Storage.</p>
+              <div class="preview-upload-grid">
+                <label class="thumbnail-picker">
+                  Preview image 1
+                  <input type="file" id="primary-image-file" accept="image/*" />
+                </label>
+                <label class="thumbnail-picker">
+                  Preview image 2 / hover
+                  <input type="file" id="secondary-image-file" accept="image/*" />
+                </label>
+              </div>
+              <div class="preview-stack">
+                <div class="thumb-preview" id="primary-preview"></div>
+                <div class="thumb-preview" id="secondary-preview"></div>
+              </div>
+              <p class="helper-copy">Local demo saves preview images in this browser only and keeps only the package file name. Production upload needs the PHP/MySQL flow described in Storage.</p>
               <div class="editor-actions">
                 <button class="ghost-button" type="button" id="clear-form-button">Clear</button>
                 <button class="primary-button" type="submit">
@@ -327,10 +336,23 @@
               </div>
               <ul class="storage-list">
                 <li>Products, categories, genres, tags, fixed page copy, and sort orders are saved to browser localStorage.</li>
-                <li>Thumbnail images are saved as browser data URLs for preview only.</li>
+                <li>Preview images and the watermark image are saved as browser data URLs for preview only.</li>
                 <li>CAD package files are not uploaded to ConoHa in this demo; the admin keeps the file name only.</li>
                 <li>The storefront reads the same localStorage key, so one browser can test “upload → display” immediately.</li>
               </ul>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>Preview Watermark</h2>
+                <span>PNG overlay</span>
+              </div>
+              <label class="thumbnail-picker">
+                Watermark PNG
+                <input type="file" id="watermark-file" accept="image/png,image/webp,image/svg+xml,image/*" />
+              </label>
+              <div class="thumb-preview watermark-preview" id="watermark-preview"></div>
+              <p class="helper-copy">Upload the transparent PNG you want layered over product preview images. You can replace it later from here.</p>
+              <button class="ghost-button" type="button" id="clear-watermark-button">Clear watermark</button>
             </article>
             <article class="panel">
               <div class="panel-head">
@@ -339,7 +361,7 @@
               </div>
               <ol class="storage-list">
                 <li>Admin login is handled by PHP sessions.</li>
-                <li>CAD packages and thumbnails are uploaded to `public_html/dropworld.space/uploads/`.</li>
+                <li>CAD packages, preview image 1, preview image 2, and watermark PNG are uploaded to `public_html/dropworld.space/uploads/`.</li>
                 <li>Product metadata is saved in ConoHa MySQL tables.</li>
                 <li>The storefront fetches published products from a small PHP JSON API.</li>
                 <li>Stripe handles checkout, payment status, and revenue reports.</li>
@@ -350,18 +372,19 @@
                 <h2>Suggested Tables</h2>
                 <span>MySQL</span>
               </div>
-              <pre class="schema-box">products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, package_path, thumbnail_path, created_at, updated_at)
+              <pre class="schema-box">products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, package_path, preview_image_1_path, preview_image_2_path, created_at, updated_at)
 categories(id, slug, name_en, name_ja)
 genres(id, slug, name_en, name_ja)
 tags(id, slug, name_en, name_ja)
 product_tags(product_id, tag_id)
-sort_orders(scope_type, scope_id, product_ids_json)</pre>
+sort_orders(scope_type, scope_id, product_ids_json)
+settings(key, value)</pre>
             </article>
           </div>
         </section>
       </main>
     </div>
 
-    <script src="admin.js?v=20260610-admin-flow-2"></script>
+    <script src="admin.js?v=20260610-product-detail-1"></script>
   </body>
 </html>

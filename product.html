@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DROP WORLD Product</title>
+    <link rel="stylesheet" href="styles.css?v=20260610-product-detail-1" />
+  </head>
+  <body>
+    <header class="site-header detail-header" aria-label="Primary navigation">
+      <a class="brand" href="index.html#home" aria-label="DROP WORLD home">
+        <span>DROP</span>
+        <span>WORLD</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html#products">All</a>
+        <a href="index.html#about">About</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="icon-button" href="index.html#products" title="Search" aria-label="Search CAD">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m16.5 16.5 4 4" />
+          </svg>
+        </a>
+        <button class="icon-button" type="button" title="My page" aria-label="My page">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c1.8-4.4 5-6.5 8-6.5s6.2 2.1 8 6.5" />
+          </svg>
+        </button>
+        <button class="icon-button cart-button" type="button" title="Cart" aria-label="Cart">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5.5 6h15l-1.7 8.5H8L6.2 3H3" />
+            <circle cx="9" cy="20" r="1.6" />
+            <circle cx="18" cy="20" r="1.6" />
+          </svg>
+          <span id="cart-count">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="product-page">
+      <section class="product-detail" id="product-detail" aria-live="polite"></section>
+      <section class="related-section" aria-labelledby="related-title">
+        <h2 id="related-title">Related products</h2>
+        <div class="related-grid" id="related-grid"></div>
+      </section>
+    </main>
+
+    <script src="product.js?v=20260610-product-detail-1"></script>
+  </body>
+</html>

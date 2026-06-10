@@ -6,9 +6,12 @@ const LOGIN_REQUIRED = false;
 const memoryStorage = {};
 
 const defaultState = {
-  version: 2,
+  version: 3,
   store: {
     name: "DROP WORLD",
+  },
+  settings: {
+    watermarkImage: "",
   },
   pages: {
     heroEyebrowEn: "Digital drawing assets for spatial stories",
@@ -41,7 +44,8 @@ const defaultState = {
 };
 
 let state = normalizeState(loadState());
-let pendingThumbnail = "";
+let pendingPrimaryImage = "";
+let pendingSecondaryImage = "";
 let currentView = "products";
 let currentScope = "all";
 
@@ -58,8 +62,12 @@ const productSearch = document.querySelector("#product-search");
 const statusFilter = document.querySelector("#status-filter");
 const scopeFilter = document.querySelector("#scope-filter");
 const cadFile = document.querySelector("#cad-file");
-const thumbnailFile = document.querySelector("#thumbnail-file");
-const thumbPreview = document.querySelector("#thumb-preview");
+const primaryImageFile = document.querySelector("#primary-image-file");
+const secondaryImageFile = document.querySelector("#secondary-image-file");
+const primaryPreview = document.querySelector("#primary-preview");
+const secondaryPreview = document.querySelector("#secondary-preview");
+const watermarkFile = document.querySelector("#watermark-file");
+const watermarkPreview = document.querySelector("#watermark-preview");
 const fileName = document.querySelector("#file-name");
 const pagesForm = document.querySelector("#pages-form");
 
@@ -84,6 +92,7 @@ function loadState() {
 function normalizeState(value) {
   const next = { ...cloneState(defaultState), ...value };
   next.store = { ...defaultState.store, ...(value.store || {}) };
+  next.settings = { ...defaultState.settings, ...(value.settings || {}) };
   next.pages = { ...defaultState.pages, ...(value.pages || {}) };
   next.categories = Array.isArray(value.categories) ? value.categories : [];
   next.genres = Array.isArray(value.genres) && value.genres.length ? value.genres : cloneState(defaultState.genres);
@@ -100,6 +109,7 @@ function normalizeState(value) {
 }
 
 function normalizeProduct(product) {
+  const primaryImage = product.primaryImage || product.thumbnail || "";
   return {
     id: product.id || createId(),
     order: Number(product.order || 0),
@@ -114,7 +124,9 @@ function normalizeProduct(product) {
     status: product.status || "Draft",
     slug: product.slug || slugify(product.titleEn || ""),
     fileName: product.fileName || "",
-    thumbnail: product.thumbnail || "",
+    primaryImage,
+    secondaryImage: product.secondaryImage || "",
+    thumbnail: primaryImage,
     tags: Array.isArray(product.tags) ? product.tags : [],
     createdAt: product.createdAt || new Date().toISOString(),
     updatedAt: product.updatedAt || new Date().toISOString(),
@@ -188,7 +200,8 @@ document.querySelector("#logout-button").addEventListener("click", () => {
 document.querySelector("#reset-button").addEventListener("click", () => {
   if (!window.confirm("Clear local DROP WORLD admin data in this browser?")) return;
   state = cloneState(defaultState);
-  pendingThumbnail = "";
+  pendingPrimaryImage = "";
+  pendingSecondaryImage = "";
   currentScope = "all";
   storageRemove(STORAGE_KEY);
   clearForm();
@@ -226,7 +239,8 @@ function renderAll() {
   renderProductsTable();
   renderTaxonomy();
   fillPagesForm();
-  renderThumbPreview();
+  renderImagePreviews();
+  renderWatermarkPreview();
 }
 
 function currency(value) {
@@ -370,7 +384,8 @@ function tagPills(tagIds = []) {
 }
 
 function thumbMarkup(product) {
-  if (product.thumbnail) return `<img src="${escapeAttr(product.thumbnail)}" alt="" />`;
+  const preview = product.primaryImage || product.thumbnail;
+  if (preview) return `<img src="${escapeAttr(preview)}" alt="" />`;
   const color = product.type === "Section" ? "#6570df" : product.type === "Elevation" ? "#a06a55" : "#83b8b0";
   return `
     <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -494,10 +509,11 @@ function fillForm(product) {
   document.querySelector("#slug-input").value = product.slug;
   document.querySelector("#status-select").value = product.status;
   fileName.textContent = product.fileName || "Select package";
-  pendingThumbnail = product.thumbnail || "";
+  pendingPrimaryImage = product.primaryImage || product.thumbnail || "";
+  pendingSecondaryImage = product.secondaryImage || "";
   document.querySelector("#editor-mode").textContent = "Editing";
   renderTagChecks(product.tags);
-  renderThumbPreview();
+  renderImagePreviews();
 }
 
 function clearForm() {
@@ -512,10 +528,11 @@ function clearForm() {
   document.querySelector("#status-select").value = "Published";
   document.querySelector("#editor-mode").textContent = "New item";
   fileName.textContent = "Select package";
-  pendingThumbnail = "";
+  pendingPrimaryImage = "";
+  pendingSecondaryImage = "";
   renderTaxonomySelects();
   renderTagChecks([]);
-  renderThumbPreview();
+  renderImagePreviews();
 }
 
 document.querySelector("#title-en").addEventListener("input", (event) => {
@@ -536,23 +553,82 @@ cadFile.addEventListener("change", () => {
   fileName.textContent = cadFile.files[0]?.name || "Select package";
 });
 
-thumbnailFile.addEventListener("change", () => {
-  const file = thumbnailFile.files[0];
+primaryImageFile.addEventListener("change", () => {
+  readImageFile(primaryImageFile.files[0], (dataUrl) => {
+    pendingPrimaryImage = dataUrl;
+    renderImagePreviews();
+  });
+});
+
+secondaryImageFile.addEventListener("change", () => {
+  readImageFile(secondaryImageFile.files[0], (dataUrl) => {
+    pendingSecondaryImage = dataUrl;
+    renderImagePreviews();
+  });
+});
+
+watermarkFile.addEventListener("change", () => {
+  readImageFile(
+    watermarkFile.files[0],
+    (dataUrl) => {
+      state.settings.watermarkImage = dataUrl;
+      saveState();
+      renderWatermarkPreview();
+    },
+    { preservePng: true, maxSize: 1600 },
+  );
+});
+
+document.querySelector("#clear-watermark-button").addEventListener("click", () => {
+  state.settings.watermarkImage = "";
+  watermarkFile.value = "";
+  saveState();
+  renderWatermarkPreview();
+});
+
+function readImageFile(file, callback, options = {}) {
   if (!file) return;
   if (!file.type.startsWith("image/")) {
     window.alert("Please select an image file.");
     return;
   }
+
   const reader = new FileReader();
   reader.addEventListener("load", () => {
-    pendingThumbnail = reader.result;
-    renderThumbPreview();
+    resizeImage(reader.result, file.type, callback, options);
   });
   reader.readAsDataURL(file);
-});
+}
 
-function renderThumbPreview() {
-  thumbPreview.innerHTML = pendingThumbnail ? `<img src="${escapeAttr(pendingThumbnail)}" alt="" />` : "No thumbnail selected";
+function resizeImage(dataUrl, fileType, callback, options = {}) {
+  const image = new Image();
+  image.addEventListener("load", () => {
+    const maxSize = options.maxSize || 1800;
+    const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    context.imageSmoothingQuality = "high";
+    context.drawImage(image, 0, 0, width, height);
+    const outputType = options.preservePng && fileType.includes("png") ? "image/png" : "image/jpeg";
+    callback(canvas.toDataURL(outputType, 0.86));
+  });
+  image.addEventListener("error", () => window.alert("Could not read this image."));
+  image.src = dataUrl;
+}
+
+function renderImagePreviews() {
+  primaryPreview.innerHTML = pendingPrimaryImage ? `<img src="${escapeAttr(pendingPrimaryImage)}" alt="" />` : "Preview image 1";
+  secondaryPreview.innerHTML = pendingSecondaryImage ? `<img src="${escapeAttr(pendingSecondaryImage)}" alt="" />` : "Preview image 2";
+}
+
+function renderWatermarkPreview() {
+  watermarkPreview.innerHTML = state.settings.watermarkImage
+    ? `<img src="${escapeAttr(state.settings.watermarkImage)}" alt="" />`
+    : "No watermark selected";
 }
 
 productForm.addEventListener("submit", (event) => {
@@ -585,7 +661,9 @@ productForm.addEventListener("submit", (event) => {
     status: document.querySelector("#status-select").value,
     slug: document.querySelector("#slug-input").value.trim() || slugify(document.querySelector("#title-en").value),
     fileName: cadFile.files[0]?.name || existing?.fileName || "cad-package.zip",
-    thumbnail: pendingThumbnail || existing?.thumbnail || "",
+    primaryImage: pendingPrimaryImage || existing?.primaryImage || existing?.thumbnail || "",
+    secondaryImage: pendingSecondaryImage || existing?.secondaryImage || "",
+    thumbnail: pendingPrimaryImage || existing?.primaryImage || existing?.thumbnail || "",
     tags: getSelectedTags(),
     createdAt: existing?.createdAt || now,
     updatedAt: now,
