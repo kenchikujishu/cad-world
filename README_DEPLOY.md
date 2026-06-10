@@ -70,7 +70,29 @@ public_html/dropworld.space/
 
 If ConoHa shows a different folder for `dropworld.space`, use that folder instead.
 
-## Current Demo Limitation
+## Catalog Database and R2
 
-The admin screen is a front-end demo. Product edits are saved in browser local storage.
-For production, replace this with a real server-side login, database, and file upload storage.
+The storefront now reads product metadata from:
+
+```text
+data/catalog.json
+```
+
+This JSON file is the current lightweight database. Product records store Cloudflare R2 object keys for:
+
+```text
+assets.package.key
+assets.previewPrimary.key
+assets.previewSecondary.key
+settings.watermarkAsset.key
+```
+
+When R2 public URLs are available, put them in each asset's `url` field. Until then, local preview URLs can stay in the same fields for visual testing.
+
+R2 should hold the actual CAD zip files and preview PNG files. GitHub/ConoHa holds the public HTML/CSS/JS and `data/catalog.json`.
+
+## Current Admin Limitation
+
+The admin screen loads `data/catalog.json` first, then saves edits to browser local storage for the current demo. Use `Reload DB` to discard local edits and reload the JSON database. Use `Export JSON` after edits to download the next catalog file that should replace `data/catalog.json`.
+
+For production, add a server-side write API so admin edits upload files to R2 and update the catalog database automatically.

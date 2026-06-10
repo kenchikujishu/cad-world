@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DROP WORLD Admin</title>
-    <link rel="stylesheet" href="admin.css?v=20260610-product-detail-1" />
+    <link rel="stylesheet" href="admin.css?v=20260610-r2-db-1" />
   </head>
   <body>
     <main class="auth-screen is-hidden" id="auth-screen">
@@ -71,6 +71,7 @@
           </div>
           <div class="topbar-actions">
             <button class="ghost-button" type="button" id="export-button">Export JSON</button>
+            <button class="ghost-button" type="button" id="reload-db-button">Reload DB</button>
             <button class="ghost-button" type="button" id="reset-button">Clear local data</button>
             <button class="ghost-button" type="button" id="logout-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
@@ -331,14 +332,14 @@
           <div class="storage-grid">
             <article class="panel">
               <div class="panel-head">
-                <h2>Current Demo Storage</h2>
-                <span>Local only</span>
+                <h2>Current Database Source</h2>
+                <span>JSON + R2 keys</span>
               </div>
               <ul class="storage-list">
-                <li>Products, categories, genres, tags, fixed page copy, and sort orders are saved to browser localStorage.</li>
-                <li>Preview images and the watermark image are saved as browser data URLs for preview only.</li>
-                <li>CAD package files are not uploaded to ConoHa in this demo; the admin keeps the file name only.</li>
-                <li>The storefront reads the same localStorage key, so one browser can test “upload → display” immediately.</li>
+                <li>The storefront first reads `data/catalog.json`. This file is the current product metadata database.</li>
+                <li>Each product stores R2 object keys for package zip, preview image 1, preview image 2, and optional public URLs.</li>
+                <li>Admin edits are still saved to browser localStorage until the server-side write API is added.</li>
+                <li>Use Export JSON after editing to create the next `data/catalog.json` contents for GitHub/R2 workflow updates.</li>
               </ul>
             </article>
             <article class="panel">
@@ -361,9 +362,9 @@
               </div>
               <ol class="storage-list">
                 <li>Admin login is handled by PHP sessions.</li>
-                <li>CAD packages, preview image 1, preview image 2, and watermark PNG are uploaded to `public_html/dropworld.space/uploads/`.</li>
-                <li>Product metadata is saved in ConoHa MySQL tables.</li>
-                <li>The storefront fetches published products from a small PHP JSON API.</li>
+                <li>CAD packages, preview image 1, preview image 2, and watermark PNG are uploaded to Cloudflare R2.</li>
+                <li>Product metadata is saved in `data/catalog.json` now, then can move to ConoHa MySQL or another DB when checkout/login becomes real.</li>
+                <li>The storefront fetches published products from the JSON DB and uses the R2 URLs in each product asset.</li>
                 <li>Stripe handles checkout, payment status, and revenue reports.</li>
               </ol>
             </article>
@@ -372,7 +373,9 @@
                 <h2>Suggested Tables</h2>
                 <span>MySQL</span>
               </div>
-              <pre class="schema-box">products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, package_path, preview_image_1_path, preview_image_2_path, created_at, updated_at)
+              <pre class="schema-box">data/catalog.json
+storage(provider, bucket, keyPrefix, publicBaseUrl)
+products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, assets.package.key, assets.previewPrimary.key, assets.previewSecondary.key, created_at, updated_at)
 categories(id, slug, name_en, name_ja)
 genres(id, slug, name_en, name_ja)
 tags(id, slug, name_en, name_ja)
@@ -385,6 +388,6 @@ settings(key, value)</pre>
       </main>
     </div>
 
-    <script src="admin.js?v=20260610-product-detail-1"></script>
+    <script src="admin.js?v=20260610-r2-db-1"></script>
   </body>
 </html>

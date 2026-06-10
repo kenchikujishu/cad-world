@@ -1,8 +1,16 @@
 const STORAGE_KEY = "dropworld_catalog_state";
+const CATALOG_DB_URL = "data/catalog.json";
 
 const defaultCatalog = {
+  version: 4,
+  storage: {
+    provider: "cloudflare-r2",
+    bucket: "",
+    keyPrefix: "",
+    publicBaseUrl: "",
+  },
   store: { name: "DROP WORLD" },
-  settings: { watermarkImage: "" },
+  settings: { watermarkImage: "", watermarkAsset: null },
   categories: [],
   genres: [
     { id: "plan", en: "Plan", ja: "平面" },
@@ -15,7 +23,7 @@ const defaultCatalog = {
   sortOrders: { all: [], categories: {}, genres: {}, tags: {} },
 };
 
-let catalog = loadCatalog();
+let catalog = normalizeCatalog(defaultCatalog);
 let activeImageIndex = 0;
 let cartItems = 0;
 
@@ -24,18 +32,33 @@ const relatedGrid = document.querySelector("#related-grid");
 const cartCount = document.querySelector("#cart-count");
 const siteHeader = document.querySelector(".site-header");
 
-function loadCatalog() {
+async function loadCatalog() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return normalizeCatalog(defaultCatalog);
+    if (!stored) {
+      const database = await fetchCatalogDatabase();
+      return normalizeCatalog(database || defaultCatalog);
+    }
     return normalizeCatalog({ ...defaultCatalog, ...JSON.parse(stored) });
   } catch {
-    return normalizeCatalog(defaultCatalog);
+    const database = await fetchCatalogDatabase();
+    return normalizeCatalog(database || defaultCatalog);
+  }
+}
+
+async function fetchCatalogDatabase() {
+  try {
+    const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
   }
 }
 
 function normalizeCatalog(value) {
   const next = { ...defaultCatalog, ...value };
+  next.storage = { ...defaultCatalog.storage, ...(value.storage || {}) };
   next.store = { ...defaultCatalog.store, ...(value.store || {}) };
   next.settings = { ...defaultCatalog.settings, ...(value.settings || {}) };
   next.categories = Array.isArray(value.categories) ? value.categories : [];
@@ -54,7 +77,10 @@ function normalizeCatalog(value) {
 }
 
 function normalizeProduct(product) {
-  const primaryImage = product.primaryImage || product.thumbnail || "";
+  const primaryImage =
+    product.primaryImage || product.thumbnail || assetUrl(product.assets?.previewPrimary, product.assets?.previewImage1, product.previewImage1);
+  const secondaryImage = product.secondaryImage || assetUrl(product.assets?.previewSecondary, product.assets?.previewImage2, product.previewImage2);
+  const packageAsset = product.assets?.package || product.package || {};
   return {
     id: product.id || product.slug || `product-${Math.random().toString(36).slice(2)}`,
     title: product.titleEn || product.title || "Untitled CAD",
@@ -67,14 +93,30 @@ function normalizeProduct(product) {
     status: product.status || "Draft",
     price: `$${Number(product.price || 0).toFixed(2)}`,
     priceValue: Number(product.price || 0),
-    fileName: product.fileName || "",
+    fileName: product.fileName || packageAsset.fileName || fileNameFromKey(packageAsset.key) || "",
     primaryImage,
-    secondaryImage: product.secondaryImage || "",
+    secondaryImage,
     thumbnail: primaryImage,
+    assets: product.assets || {},
     tags: Array.isArray(product.tags) ? product.tags : [],
     slug: product.slug || "",
     order: Number(product.order || 0),
   };
+}
+
+function assetUrl(...assets) {
+  const flatAssets = assets.flat().filter(Boolean);
+  for (const asset of flatAssets) {
+    if (typeof asset === "string") return asset;
+    if (asset.url) return asset.url;
+    if (asset.publicUrl) return asset.publicUrl;
+    if (asset.href) return asset.href;
+  }
+  return "";
+}
+
+function fileNameFromKey(key = "") {
+  return key.split("/").filter(Boolean).pop() || "";
 }
 
 function getProduct() {
@@ -224,8 +266,9 @@ function detailImage(src, alt) {
 }
 
 function watermarkMarkup(context = "detail") {
-  if (!catalog.settings.watermarkImage) return "";
-  return `<img class="watermark-overlay watermark-${context}" src="${escapeAttr(catalog.settings.watermarkImage)}" alt="" />`;
+  const watermark = catalog.settings.watermarkImage || assetUrl(catalog.settings.watermarkAsset);
+  if (!watermark) return "";
+  return `<img class="watermark-overlay watermark-${context}" src="${escapeAttr(watermark)}" alt="" />`;
 }
 
 function getCategory(id) {
@@ -273,5 +316,10 @@ function escapeAttr(value = "") {
   return escapeHtml(value);
 }
 
+async function initializeProductPage() {
+  catalog = await loadCatalog();
+  render();
+}
+
 window.addEventListener("scroll", updateHeaderState, { passive: true });
-render();
+initializeProductPage();

@@ -1,8 +1,16 @@
 const STORAGE_KEY = "dropworld_catalog_state";
+const CATALOG_DB_URL = "data/catalog.json";
 
 const defaultCatalog = {
+  version: 4,
+  storage: {
+    provider: "cloudflare-r2",
+    bucket: "",
+    keyPrefix: "",
+    publicBaseUrl: "",
+  },
   store: { name: "DROP WORLD" },
-  settings: { watermarkImage: "" },
+  settings: { watermarkImage: "", watermarkAsset: null },
   pages: {
     heroEyebrowEn: "Digital drawing assets for spatial stories",
     heroEyebrowJa: "空間の物語のためのデジタル図面素材",
@@ -28,7 +36,7 @@ const defaultCatalog = {
   sortOrders: { all: [], categories: {}, genres: {}, tags: {} },
 };
 
-let catalog = loadCatalog();
+let catalog = normalizeCatalog(defaultCatalog);
 
 const i18n = {
   en: {
@@ -109,18 +117,33 @@ const HERO_SLIDE_INTERVAL = 3000;
 let activeSlide = 0;
 let heroTimer = window.setInterval(nextSlide, HERO_SLIDE_INTERVAL);
 
-function loadCatalog() {
+async function loadCatalog() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return normalizeCatalog(defaultCatalog);
+    if (!stored) {
+      const database = await fetchCatalogDatabase();
+      return normalizeCatalog(database || defaultCatalog);
+    }
     return normalizeCatalog({ ...defaultCatalog, ...JSON.parse(stored) });
   } catch {
-    return normalizeCatalog(defaultCatalog);
+    const database = await fetchCatalogDatabase();
+    return normalizeCatalog(database || defaultCatalog);
+  }
+}
+
+async function fetchCatalogDatabase() {
+  try {
+    const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
   }
 }
 
 function normalizeCatalog(value) {
   const next = { ...defaultCatalog, ...value };
+  next.storage = { ...defaultCatalog.storage, ...(value.storage || {}) };
   next.store = { ...defaultCatalog.store, ...(value.store || {}) };
   next.settings = { ...defaultCatalog.settings, ...(value.settings || {}) };
   next.pages = { ...defaultCatalog.pages, ...(value.pages || {}) };
@@ -139,7 +162,10 @@ function normalizeCatalog(value) {
 
 function normalizeProduct(product) {
   const genre = product.genreId || product.category || "plan";
-  const primaryImage = product.primaryImage || product.thumbnail || "";
+  const primaryImage =
+    product.primaryImage || product.thumbnail || assetUrl(product.assets?.previewPrimary, product.assets?.previewImage1, product.previewImage1);
+  const secondaryImage = product.secondaryImage || assetUrl(product.assets?.previewSecondary, product.assets?.previewImage2, product.previewImage2);
+  const packageAsset = product.assets?.package || product.package || {};
   return {
     id: product.id || product.slug || `product-${Math.random().toString(36).slice(2)}`,
     title: product.titleEn || product.title || "Untitled CAD",
@@ -152,15 +178,31 @@ function normalizeProduct(product) {
     status: product.status || "Draft",
     price: `$${Number(product.price || 0).toFixed(2)}`,
     priceValue: Number(product.price || 0),
-    fileName: product.fileName || "",
+    fileName: product.fileName || packageAsset.fileName || fileNameFromKey(packageAsset.key) || "",
     primaryImage,
-    secondaryImage: product.secondaryImage || "",
+    secondaryImage,
     thumbnail: primaryImage,
+    assets: product.assets || {},
     template: templateFor(product.type || genre),
     accent: accentFor(product.type || genre),
     tags: Array.isArray(product.tags) ? product.tags : [],
     order: Number(product.order || 0),
   };
+}
+
+function assetUrl(...assets) {
+  const flatAssets = assets.flat().filter(Boolean);
+  for (const asset of flatAssets) {
+    if (typeof asset === "string") return asset;
+    if (asset.url) return asset.url;
+    if (asset.publicUrl) return asset.publicUrl;
+    if (asset.href) return asset.href;
+  }
+  return "";
+}
+
+function fileNameFromKey(key = "") {
+  return key.split("/").filter(Boolean).pop() || "";
 }
 
 function templateFor(type = "") {
@@ -482,8 +524,9 @@ function productUrl(product) {
 }
 
 function watermarkMarkup(context = "card") {
-  if (!catalog.settings.watermarkImage) return "";
-  return `<img class="watermark-overlay watermark-${context}" src="${escapeAttr(catalog.settings.watermarkImage)}" alt="" />`;
+  const watermark = catalog.settings.watermarkImage || assetUrl(catalog.settings.watermarkAsset);
+  if (!watermark) return "";
+  return `<img class="watermark-overlay watermark-${context}" src="${escapeAttr(watermark)}" alt="" />`;
 }
 
 function label(category) {
@@ -808,6 +851,11 @@ function axonPerson(x, y) {
   `;
 }
 
-document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
-updateHeaderState();
-setLanguage("en");
+async function initializeStorefront() {
+  catalog = await loadCatalog();
+  document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+  updateHeaderState();
+  setLanguage("en");
+}
+
+initializeStorefront();

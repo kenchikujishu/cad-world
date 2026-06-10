@@ -1,12 +1,19 @@
 const STORAGE_KEY = "dropworld_catalog_state";
 const SESSION_KEY = "dropworld_admin_session";
+const CATALOG_DB_URL = "data/catalog.json";
 const ADMIN_EMAIL = "admin@dropworld.space";
 const ADMIN_PASSWORD = "demo2026";
 const LOGIN_REQUIRED = false;
 const memoryStorage = {};
 
 const defaultState = {
-  version: 3,
+  version: 4,
+  storage: {
+    provider: "cloudflare-r2",
+    bucket: "",
+    keyPrefix: "",
+    publicBaseUrl: "",
+  },
   store: {
     name: "DROP WORLD",
   },
@@ -43,7 +50,7 @@ const defaultState = {
   },
 };
 
-let state = normalizeState(loadState());
+let state = normalizeState(defaultState);
 let pendingPrimaryImage = "";
 let pendingSecondaryImage = "";
 let currentView = "products";
@@ -79,18 +86,33 @@ const viewMeta = {
   storage: ["Storage", "Upload and Database Flow"],
 };
 
-function loadState() {
+async function loadState() {
   const stored = storageGet(STORAGE_KEY);
-  if (!stored) return cloneState(defaultState);
+  if (!stored) {
+    const database = await fetchCatalogDatabase();
+    return cloneState(database || defaultState);
+  }
   try {
     return { ...cloneState(defaultState), ...JSON.parse(stored) };
   } catch {
-    return cloneState(defaultState);
+    const database = await fetchCatalogDatabase();
+    return cloneState(database || defaultState);
+  }
+}
+
+async function fetchCatalogDatabase() {
+  try {
+    const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
   }
 }
 
 function normalizeState(value) {
   const next = { ...cloneState(defaultState), ...value };
+  next.storage = { ...defaultState.storage, ...(value.storage || {}) };
   next.store = { ...defaultState.store, ...(value.store || {}) };
   next.settings = { ...defaultState.settings, ...(value.settings || {}) };
   next.pages = { ...defaultState.pages, ...(value.pages || {}) };
@@ -109,7 +131,10 @@ function normalizeState(value) {
 }
 
 function normalizeProduct(product) {
-  const primaryImage = product.primaryImage || product.thumbnail || "";
+  const primaryImage =
+    product.primaryImage || product.thumbnail || assetUrl(product.assets?.previewPrimary, product.assets?.previewImage1, product.previewImage1);
+  const secondaryImage = product.secondaryImage || assetUrl(product.assets?.previewSecondary, product.assets?.previewImage2, product.previewImage2);
+  const packageAsset = product.assets?.package || product.package || {};
   return {
     id: product.id || createId(),
     order: Number(product.order || 0),
@@ -123,14 +148,30 @@ function normalizeProduct(product) {
     price: Number(product.price || 0),
     status: product.status || "Draft",
     slug: product.slug || slugify(product.titleEn || ""),
-    fileName: product.fileName || "",
+    fileName: product.fileName || packageAsset.fileName || fileNameFromKey(packageAsset.key) || "",
     primaryImage,
-    secondaryImage: product.secondaryImage || "",
+    secondaryImage,
     thumbnail: primaryImage,
+    assets: product.assets || {},
     tags: Array.isArray(product.tags) ? product.tags : [],
     createdAt: product.createdAt || new Date().toISOString(),
     updatedAt: product.updatedAt || new Date().toISOString(),
   };
+}
+
+function assetUrl(...assets) {
+  const flatAssets = assets.flat().filter(Boolean);
+  for (const asset of flatAssets) {
+    if (typeof asset === "string") return asset;
+    if (asset.url) return asset.url;
+    if (asset.publicUrl) return asset.publicUrl;
+    if (asset.href) return asset.href;
+  }
+  return "";
+}
+
+function fileNameFromKey(key = "") {
+  return key.split("/").filter(Boolean).pop() || "";
 }
 
 function saveState() {
@@ -216,6 +257,22 @@ document.querySelector("#export-button").addEventListener("click", () => {
   link.download = "dropworld-catalog.json";
   link.click();
   URL.revokeObjectURL(url);
+});
+
+document.querySelector("#reload-db-button").addEventListener("click", async () => {
+  const database = await fetchCatalogDatabase();
+  if (!database) {
+    window.alert("Could not load data/catalog.json.");
+    return;
+  }
+  state = normalizeState(database);
+  pendingPrimaryImage = "";
+  pendingSecondaryImage = "";
+  currentScope = "all";
+  storageSet(STORAGE_KEY, JSON.stringify(state));
+  clearForm();
+  renderAll();
+  setView("products");
 });
 
 navLinks.forEach((button) => {
@@ -626,8 +683,9 @@ function renderImagePreviews() {
 }
 
 function renderWatermarkPreview() {
-  watermarkPreview.innerHTML = state.settings.watermarkImage
-    ? `<img src="${escapeAttr(state.settings.watermarkImage)}" alt="" />`
+  const watermark = state.settings.watermarkImage || assetUrl(state.settings.watermarkAsset);
+  watermarkPreview.innerHTML = watermark
+    ? `<img src="${escapeAttr(watermark)}" alt="" />`
     : "No watermark selected";
 }
 
@@ -664,6 +722,7 @@ productForm.addEventListener("submit", (event) => {
     primaryImage: pendingPrimaryImage || existing?.primaryImage || existing?.thumbnail || "",
     secondaryImage: pendingSecondaryImage || existing?.secondaryImage || "",
     thumbnail: pendingPrimaryImage || existing?.primaryImage || existing?.thumbnail || "",
+    assets: existing?.assets || {},
     tags: getSelectedTags(),
     createdAt: existing?.createdAt || now,
     updatedAt: now,
@@ -816,10 +875,15 @@ function escapeAttr(value = "") {
   return escapeHtml(value);
 }
 
-saveState();
-setView(currentView);
-if (!LOGIN_REQUIRED || storageGet(SESSION_KEY) === "active") {
-  showApp();
-} else {
-  showAuth();
+async function initializeAdmin() {
+  state = normalizeState(await loadState());
+  saveState();
+  setView(currentView);
+  if (!LOGIN_REQUIRED || storageGet(SESSION_KEY) === "active") {
+    showApp();
+  } else {
+    showAuth();
+  }
 }
+
+initializeAdmin();
