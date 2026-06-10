@@ -165,12 +165,6 @@ function showAuth() {
   adminShell.classList.add("is-hidden");
 }
 
-if (!LOGIN_REQUIRED || storageGet(SESSION_KEY) === "active") {
-  showApp();
-} else {
-  showAuth();
-}
-
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const email = document.querySelector("#login-email").value.trim();
@@ -727,7 +721,7 @@ pagesForm.addEventListener("submit", (event) => {
 });
 
 function createId() {
-  if (crypto?.randomUUID) return `p-${crypto.randomUUID().slice(0, 8)}`;
+  if (globalThis.crypto?.randomUUID) return `p-${globalThis.crypto.randomUUID().slice(0, 8)}`;
   return `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
@@ -746,3 +740,8 @@ function escapeAttr(value = "") {
 
 saveState();
 setView(currentView);
+if (!LOGIN_REQUIRED || storageGet(SESSION_KEY) === "active") {
+  showApp();
+} else {
+  showAuth();
+}
