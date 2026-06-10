@@ -39,6 +39,16 @@ FTP_REMOTE_DIR
 FTP_SERVER_DIR
 ```
 
+Alternatively, you can keep all settings in one repository secret named `CONOHA_DROP`:
+
+```text
+CONOHA_FTP_SERVER = your-ftp-server
+CONOHA_FTP_USERNAME = your-ftp-username
+CONOHA_FTP_PASSWORD = your-ftp-password
+CONOHA_FTP_PORT = 21
+CONOHA_REMOTE_DIR = public_html/dropworld.space/
+```
+
 If the deploy job says `FTP_SERVER is empty`, the secret exists under a different name, in another repository, or only under an Environment that the workflow job is not using.
 
 Do not commit FTP passwords, API keys, SSH keys, or ConoHa account credentials.

@@ -24,6 +24,51 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Load bundled ConoHa secret
+        shell: bash
+        env:
+          CONOHA_DROP: ${{ secrets.CONOHA_DROP }}
+        run: |
+          if [ -z "$CONOHA_DROP" ]; then
+            exit 0
+          fi
+
+          write_env() {
+            local name="$1"
+            local value="$2"
+            {
+              echo "$name<<__CONOHA_ENV__"
+              printf '%s\n' "$value"
+              echo "__CONOHA_ENV__"
+            } >> "$GITHUB_ENV"
+          }
+
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            key="${line%%=*}"
+            value="${line#*=}"
+            key="$(printf '%s' "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+            value="$(printf '%s' "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+
+            case "$key" in
+              CONOHA_FTP_SERVER|FTP_SERVER)
+                write_env FTP_SERVER "$value"
+                ;;
+              CONOHA_FTP_USERNAME|FTP_USERNAME)
+                write_env FTP_USERNAME "$value"
+                ;;
+              CONOHA_FTP_PASSWORD|FTP_PASSWORD)
+                write_env FTP_PASSWORD "$value"
+                ;;
+              CONOHA_FTP_PORT|FTP_PORT)
+                write_env FTP_PORT "$value"
+                ;;
+              CONOHA_REMOTE_DIR|CONOHA_FTP_REMOTE_DIR|FTP_REMOTE_DIR|FTP_SERVER_DIR)
+                write_env FTP_REMOTE_DIR "$value"
+                ;;
+            esac
+          done <<< "$CONOHA_DROP"
+
       - name: Check FTP settings
         run: |
           missing=0
