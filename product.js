@@ -1,13 +1,17 @@
 const STORAGE_KEY = "dropworld_catalog_state";
 const CATALOG_DB_URL = "data/catalog.json";
+const SITE_CONFIG_URL = "data/site-config.json";
 
 const defaultCatalog = {
-  version: 4,
+  version: 5,
   storage: {
     provider: "cloudflare-r2",
     bucket: "",
+    publicBucket: "",
+    privateBucket: "",
     keyPrefix: "",
     publicBaseUrl: "",
+    apiBaseUrl: "",
   },
   store: { name: "DROP WORLD" },
   settings: { watermarkImage: "", watermarkAsset: null },
@@ -48,12 +52,33 @@ async function loadCatalog() {
 }
 
 async function fetchCatalogDatabase() {
+  const siteConfig = await fetchSiteConfig();
+  const apiBaseUrl = trimSlash(siteConfig.apiBaseUrl || window.DROPWORLD_API_BASE || "");
+  if (apiBaseUrl) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/catalog?v=${Date.now()}`, { cache: "no-store" });
+      if (response.ok) return response.json();
+    } catch {
+      // Local JSON remains the fallback when the Worker is not reachable.
+    }
+  }
+
   try {
     const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return null;
     return response.json();
   } catch {
     return null;
+  }
+}
+
+async function fetchSiteConfig() {
+  try {
+    const response = await fetch(`${SITE_CONFIG_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return {};
+    return response.json();
+  } catch {
+    return {};
   }
 }
 
@@ -112,8 +137,13 @@ function assetUrl(...assets) {
     if (asset.url) return asset.url;
     if (asset.publicUrl) return asset.publicUrl;
     if (asset.href) return asset.href;
+    if (asset.key && catalog?.storage?.publicBaseUrl) return `${trimSlash(catalog.storage.publicBaseUrl)}/${asset.key}`;
   }
   return "";
+}
+
+function trimSlash(value = "") {
+  return String(value).replace(/\/+$/, "");
 }
 
 function fileNameFromKey(key = "") {
@@ -197,9 +227,11 @@ function productDetailMarkup(product) {
         <div><dt>Tags</dt><dd>${escapeHtml(tags || "No tags")}</dd></div>
       </dl>
       <div class="detail-actions">
-        <button class="primary-store-button" type="button" id="detail-add-button">Add to cart</button>
+        <button class="primary-store-button" type="button" id="detail-purchase-button">Purchase demo</button>
+        <button class="secondary-store-button" type="button" id="detail-download-button" disabled>Download after purchase</button>
         <a class="secondary-store-button" href="index.html#products">Back to collection</a>
       </div>
+      <p class="purchase-status" id="purchase-status" role="status"></p>
       <div class="share-row" aria-label="Share buttons">
         <button type="button">Tweet</button>
         <button type="button">Share</button>
@@ -242,10 +274,50 @@ function bindDetailEvents(product) {
     });
   });
 
-  detail.querySelector("#detail-add-button")?.addEventListener("click", () => {
+  detail.querySelector("#detail-purchase-button")?.addEventListener("click", async () => {
+    await handleDemoPurchase(product);
+  });
+}
+
+async function handleDemoPurchase(product) {
+  const button = detail.querySelector("#detail-purchase-button");
+  const downloadButton = detail.querySelector("#detail-download-button");
+  const status = detail.querySelector("#purchase-status");
+  const apiBaseUrl = trimSlash(catalog.storage.apiBaseUrl || window.DROPWORLD_API_BASE || "");
+
+  if (!apiBaseUrl) {
+    status.textContent = "Worker API URL is not configured yet. Deploy the Worker and set storage.apiBaseUrl in the catalog.";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "Processing demo purchase...";
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/purchase-demo`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ productId: product.id }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || `Purchase API returned ${response.status}.`);
     cartItems += 1;
     cartCount.textContent = String(cartItems);
-  });
+    status.textContent = "Demo purchase complete. Download link is ready for a short time.";
+    downloadButton.disabled = false;
+    downloadButton.addEventListener(
+      "click",
+      () => {
+        window.location.href = payload.downloadUrl;
+      },
+      { once: true },
+    );
+    window.location.href = payload.downloadUrl;
+  } catch (error) {
+    status.textContent = error.message || "Could not create a demo download.";
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function productImages(product) {

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DROP WORLD Admin</title>
-    <link rel="stylesheet" href="admin.css?v=20260610-r2-db-2" />
+    <link rel="stylesheet" href="admin.css?v=20260611-r2-worker" />
   </head>
   <body>
     <main class="auth-screen is-hidden" id="auth-screen">
@@ -192,7 +192,7 @@
             <aside class="panel upload-panel">
               <div class="panel-head">
                 <h2>Files</h2>
-                <span>Demo storage</span>
+                <span>R2 storage</span>
               </div>
               <label class="drop-zone">
                 <input type="file" id="cad-file" accept=".zip,.dwg,.dxf,.ai,.pdf,.png,.jpg,.jpeg" />
@@ -213,7 +213,8 @@
                 <div class="thumb-preview" id="primary-preview"></div>
                 <div class="thumb-preview" id="secondary-preview"></div>
               </div>
-              <p class="helper-copy">Local demo saves preview images in this browser only and keeps only the package file name. Production upload needs the PHP/MySQL flow described in Storage.</p>
+              <p class="helper-copy">When the Worker API is configured in Storage, preview images upload to the public R2 bucket and CAD packages upload to the private R2 bucket. Without it, this screen saves a local browser demo only.</p>
+              <p class="status-copy" id="upload-status" role="status"></p>
               <div class="editor-actions">
                 <button class="ghost-button" type="button" id="clear-form-button">Clear</button>
                 <button class="primary-button" type="submit">
@@ -333,14 +334,35 @@
             <article class="panel">
               <div class="panel-head">
                 <h2>Current Database Source</h2>
-                <span>JSON + R2 keys</span>
+                <span>R2 JSON DB</span>
               </div>
               <ul class="storage-list">
-                <li>The storefront first reads `data/catalog.json`. This file is the current product metadata database.</li>
-                <li>Each product stores R2 object keys for package zip, preview image 1, preview image 2, and optional public URLs.</li>
-                <li>Admin edits are still saved to browser localStorage until the server-side write API is added.</li>
-                <li>Use Export JSON after editing to create the next `data/catalog.json` contents for GitHub/R2 workflow updates.</li>
+                <li>The storefront still has a local `data/catalog.json` fallback, but the Worker API can now read and write `database/catalog.json` in the public R2 bucket.</li>
+                <li>Preview image 1, preview image 2, and the watermark go to the public bucket. CAD packages go to the private bucket.</li>
+                <li>Private files are never exposed as public URLs. The product page asks the Worker for a short download link after the demo purchase button is clicked.</li>
               </ul>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>Worker API</h2>
+                <span>Browser config</span>
+              </div>
+              <div class="settings-grid">
+                <label>
+                  API Base URL
+                  <input type="url" id="api-base-url" placeholder="https://dropworld-api.your-name.workers.dev" />
+                </label>
+                <label>
+                  Admin API Token
+                  <input type="password" id="admin-api-token" autocomplete="off" placeholder="Stored only in this browser" />
+                </label>
+              </div>
+              <p class="helper-copy">The token is not written to the public site files. It is saved only in this browser and sent to the Worker as an admin header.</p>
+              <p class="status-copy" id="api-status" role="status"></p>
+              <div class="editor-actions">
+                <button class="ghost-button" type="button" id="test-api-button">Test API</button>
+                <button class="primary-button" type="button" id="save-api-config-button">Save API config</button>
+              </div>
             </article>
             <article class="panel">
               <div class="panel-head">
@@ -357,15 +379,14 @@
             </article>
             <article class="panel">
               <div class="panel-head">
-                <h2>ConoHa Production Flow</h2>
-                <span>Next build</span>
+                <h2>Production Flow</h2>
+                <span>R2 + Stripe later</span>
               </div>
               <ol class="storage-list">
-                <li>Admin login is handled by PHP sessions.</li>
-                <li>CAD packages, preview image 1, preview image 2, and watermark PNG are uploaded to Cloudflare R2.</li>
-                <li>Product metadata is saved in `data/catalog.json` now, then can move to ConoHa MySQL or another DB when checkout/login becomes real.</li>
-                <li>The storefront fetches published products from the JSON DB and uses the R2 URLs in each product asset.</li>
-                <li>Stripe handles checkout, payment status, and revenue reports.</li>
+                <li>Admin uploads product metadata and files through the Cloudflare Worker.</li>
+                <li>The Worker writes metadata to the public bucket and packages to the private bucket.</li>
+                <li>The storefront reads published products from the catalog JSON database.</li>
+                <li>For now, Purchase is a demo button. Later Stripe checkout success will request the same private download endpoint.</li>
               </ol>
             </article>
             <article class="panel wide-panel">
@@ -373,8 +394,17 @@
                 <h2>Suggested Tables</h2>
                 <span>MySQL</span>
               </div>
-              <pre class="schema-box">data/catalog.json
-storage(provider, bucket, keyPrefix, publicBaseUrl)
+              <pre class="schema-box">R2 public bucket
+database/catalog.json
+drop-world/products/{slug}/preview-01.webp
+drop-world/products/{slug}/preview-02.webp
+drop-world/system/watermark/dropworld-watermark.png
+
+R2 private bucket
+drop-world/products/{slug}/{package-file}.zip
+
+Catalog schema
+storage(provider, publicBucket, privateBucket, keyPrefix, publicBaseUrl, apiBaseUrl)
 products(id, slug, price, status, category_id, genre_id, title_en, title_ja, description_en, description_ja, assets.package.key, assets.previewPrimary.key, assets.previewSecondary.key, created_at, updated_at)
 categories(id, slug, name_en, name_ja)
 genres(id, slug, name_en, name_ja)
@@ -388,6 +418,6 @@ settings(key, value)</pre>
       </main>
     </div>
 
-    <script src="admin.js?v=20260610-r2-db-2"></script>
+    <script src="admin.js?v=20260611-r2-worker"></script>
   </body>
 </html>

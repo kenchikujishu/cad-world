@@ -906,6 +906,20 @@ svg {
   background: #303633;
 }
 
+.primary-store-button:disabled,
+.secondary-store-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.purchase-status {
+  min-height: 22px;
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .share-row button {
   min-height: 38px;
   padding: 0 14px;

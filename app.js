@@ -1,13 +1,17 @@
 const STORAGE_KEY = "dropworld_catalog_state";
 const CATALOG_DB_URL = "data/catalog.json";
+const SITE_CONFIG_URL = "data/site-config.json";
 
 const defaultCatalog = {
-  version: 4,
+  version: 5,
   storage: {
     provider: "cloudflare-r2",
     bucket: "",
+    publicBucket: "",
+    privateBucket: "",
     keyPrefix: "",
     publicBaseUrl: "",
+    apiBaseUrl: "",
   },
   store: { name: "DROP WORLD" },
   settings: { watermarkImage: "", watermarkAsset: null },
@@ -133,12 +137,33 @@ async function loadCatalog() {
 }
 
 async function fetchCatalogDatabase() {
+  const siteConfig = await fetchSiteConfig();
+  const apiBaseUrl = trimSlash(siteConfig.apiBaseUrl || window.DROPWORLD_API_BASE || "");
+  if (apiBaseUrl) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/catalog?v=${Date.now()}`, { cache: "no-store" });
+      if (response.ok) return response.json();
+    } catch {
+      // Local JSON remains the fallback when the Worker is not reachable.
+    }
+  }
+
   try {
     const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return null;
     return response.json();
   } catch {
     return null;
+  }
+}
+
+async function fetchSiteConfig() {
+  try {
+    const response = await fetch(`${SITE_CONFIG_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return {};
+    return response.json();
+  } catch {
+    return {};
   }
 }
 
@@ -198,8 +223,13 @@ function assetUrl(...assets) {
     if (asset.url) return asset.url;
     if (asset.publicUrl) return asset.publicUrl;
     if (asset.href) return asset.href;
+    if (asset.key && catalog?.storage?.publicBaseUrl) return `${trimSlash(catalog.storage.publicBaseUrl)}/${asset.key}`;
   }
   return "";
+}
+
+function trimSlash(value = "") {
+  return String(value).replace(/\/+$/, "");
 }
 
 function fileNameFromKey(key = "") {

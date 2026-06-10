@@ -506,6 +506,27 @@ textarea:focus {
   line-height: 1.6;
 }
 
+.status-copy {
+  min-height: 20px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.5;
+}
+
+.status-copy[data-tone="ok"] {
+  color: #2d705f;
+}
+
+.status-copy[data-tone="warn"] {
+  color: #7a6425;
+}
+
+.status-copy[data-tone="error"] {
+  color: var(--danger);
+}
+
 .search-field {
   display: grid;
   grid-template-columns: 18px minmax(180px, 1fr);

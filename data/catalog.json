@@ -1,11 +1,14 @@
 {
-  "version": 4,
+  "version": 5,
   "storage": {
     "provider": "cloudflare-r2",
     "bucket": "dropworld-assets",
+    "publicBucket": "dropworld-assets",
+    "privateBucket": "dropworld-products",
     "keyPrefix": "drop-world",
     "publicBaseUrl": "",
-    "note": "Files live in Cloudflare R2. This JSON is the storefront metadata database and stores R2 object keys plus optional public URLs."
+    "apiBaseUrl": "",
+    "note": "Files live in Cloudflare R2. Public previews and database/catalog.json are in the public bucket. CAD packages are in the private bucket and are downloaded through the Worker API."
   },
   "store": {
     "name": "DROP WORLD"
@@ -105,7 +108,8 @@
         "provider": "r2",
         "package": {
           "provider": "r2",
-          "bucket": "dropworld-assets",
+          "bucket": "dropworld-products",
+          "private": true,
           "key": "drop-world/products/cad-monochrome-urban-street-section/package.zip",
           "fileName": "cad-monochrome-urban-street-section.zip",
           "contentType": "application/zip",
@@ -146,7 +150,8 @@
         "provider": "r2",
         "package": {
           "provider": "r2",
-          "bucket": "dropworld-assets",
+          "bucket": "dropworld-products",
+          "private": true,
           "key": "drop-world/products/axonometric-workshop-center/package.zip",
           "fileName": "axonometric-sketch-workshop-center.zip",
           "contentType": "application/zip",
@@ -187,7 +192,8 @@
         "provider": "r2",
         "package": {
           "provider": "r2",
-          "bucket": "dropworld-assets",
+          "bucket": "dropworld-products",
+          "private": true,
           "key": "drop-world/products/landscape-plan-lagoon-set/package.zip",
           "fileName": "landscape-plan-lagoon-set.zip",
           "contentType": "application/zip",
@@ -228,7 +234,8 @@
         "provider": "r2",
         "package": {
           "provider": "r2",
-          "bucket": "dropworld-assets",
+          "bucket": "dropworld-products",
+          "private": true,
           "key": "drop-world/products/elevation-greenhouse-facade/package.zip",
           "fileName": "elevation-greenhouse-facade.zip",
           "contentType": "application/zip",

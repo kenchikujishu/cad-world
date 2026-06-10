@@ -1,18 +1,23 @@
 const STORAGE_KEY = "dropworld_catalog_state";
 const SESSION_KEY = "dropworld_admin_session";
+const API_CONFIG_KEY = "dropworld_api_config";
 const CATALOG_DB_URL = "data/catalog.json";
+const SITE_CONFIG_URL = "data/site-config.json";
 const ADMIN_EMAIL = "admin@dropworld.space";
 const ADMIN_PASSWORD = "demo2026";
 const LOGIN_REQUIRED = false;
 const memoryStorage = {};
 
 const defaultState = {
-  version: 4,
+  version: 5,
   storage: {
     provider: "cloudflare-r2",
     bucket: "",
+    publicBucket: "",
+    privateBucket: "",
     keyPrefix: "",
     publicBaseUrl: "",
+    apiBaseUrl: "",
   },
   store: {
     name: "DROP WORLD",
@@ -77,6 +82,10 @@ const watermarkFile = document.querySelector("#watermark-file");
 const watermarkPreview = document.querySelector("#watermark-preview");
 const fileName = document.querySelector("#file-name");
 const pagesForm = document.querySelector("#pages-form");
+const apiBaseInput = document.querySelector("#api-base-url");
+const adminApiTokenInput = document.querySelector("#admin-api-token");
+const apiStatus = document.querySelector("#api-status");
+const uploadStatus = document.querySelector("#upload-status");
 
 const viewMeta = {
   products: ["CAD Items", "Product Library"],
@@ -101,12 +110,34 @@ async function loadState() {
 }
 
 async function fetchCatalogDatabase() {
+  const api = getApiConfig();
+  const siteConfig = await fetchSiteConfig();
+  const apiBaseUrl = api.baseUrl || trimSlash(siteConfig.apiBaseUrl || "");
+  if (apiBaseUrl) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/catalog?v=${Date.now()}`, { cache: "no-store" });
+      if (response.ok) return response.json();
+    } catch {
+      setApiStatus("Worker API could not be reached. Falling back to local data/catalog.json.", "warn");
+    }
+  }
+
   try {
     const response = await fetch(`${CATALOG_DB_URL}?v=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return null;
     return response.json();
   } catch {
     return null;
+  }
+}
+
+async function fetchSiteConfig() {
+  try {
+    const response = await fetch(`${SITE_CONFIG_URL}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return {};
+    return response.json();
+  } catch {
+    return {};
   }
 }
 
@@ -166,6 +197,7 @@ function assetUrl(...assets) {
     if (asset.url) return asset.url;
     if (asset.publicUrl) return asset.publicUrl;
     if (asset.href) return asset.href;
+    if (asset.key && state?.storage?.publicBaseUrl) return `${trimSlash(state.storage.publicBaseUrl)}/${asset.key}`;
   }
   return "";
 }
@@ -201,6 +233,60 @@ function storageRemove(key) {
   } catch {
     delete memoryStorage[key];
   }
+}
+
+function getApiConfig() {
+  const stored = storageGet(API_CONFIG_KEY);
+  const fallbackBase = trimSlash(state?.storage?.apiBaseUrl || "");
+  if (!stored) return { baseUrl: fallbackBase, token: "" };
+  try {
+    const parsed = JSON.parse(stored);
+    return {
+      baseUrl: trimSlash(parsed.baseUrl || fallbackBase),
+      token: parsed.token || "",
+    };
+  } catch {
+    return { baseUrl: fallbackBase, token: "" };
+  }
+}
+
+function saveApiConfig(config) {
+  storageSet(
+    API_CONFIG_KEY,
+    JSON.stringify({
+      baseUrl: trimSlash(config.baseUrl || ""),
+      token: config.token || "",
+    }),
+  );
+}
+
+function isApiConfigured() {
+  const config = getApiConfig();
+  return Boolean(config.baseUrl && config.token);
+}
+
+function renderApiConfig() {
+  if (!apiBaseInput || !adminApiTokenInput) return;
+  const config = getApiConfig();
+  apiBaseInput.value = config.baseUrl;
+  adminApiTokenInput.value = config.token;
+  setApiStatus(config.baseUrl ? "Worker API configured in this browser." : "Worker API is not configured yet. Admin saves locally until this is set.", config.baseUrl ? "ok" : "warn");
+}
+
+function setApiStatus(message, tone = "neutral") {
+  if (!apiStatus) return;
+  apiStatus.textContent = message;
+  apiStatus.dataset.tone = tone;
+}
+
+function setUploadStatus(message, tone = "neutral") {
+  if (!uploadStatus) return;
+  uploadStatus.textContent = message;
+  uploadStatus.dataset.tone = tone;
+}
+
+function trimSlash(value = "") {
+  return String(value).replace(/\/+$/, "");
 }
 
 function cloneState(value) {
@@ -275,6 +361,35 @@ document.querySelector("#reload-db-button").addEventListener("click", async () =
   setView("products");
 });
 
+document.querySelector("#save-api-config-button")?.addEventListener("click", () => {
+  saveApiConfig({
+    baseUrl: apiBaseInput.value.trim(),
+    token: adminApiTokenInput.value.trim(),
+  });
+  renderApiConfig();
+});
+
+document.querySelector("#test-api-button")?.addEventListener("click", async () => {
+  saveApiConfig({
+    baseUrl: apiBaseInput.value.trim(),
+    token: adminApiTokenInput.value.trim(),
+  });
+  const api = getApiConfig();
+  if (!api.baseUrl) {
+    setApiStatus("Enter the Worker API URL first.", "error");
+    return;
+  }
+
+  setApiStatus("Testing Worker API...", "neutral");
+  try {
+    const response = await fetch(`${api.baseUrl}/health`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Worker returned ${response.status}.`);
+    setApiStatus("Worker API is reachable. Uploads can use R2.", "ok");
+  } catch (error) {
+    setApiStatus(error.message || "Worker API test failed.", "error");
+  }
+});
+
 navLinks.forEach((button) => {
   button.addEventListener("click", () => setView(button.dataset.view));
 });
@@ -298,6 +413,7 @@ function renderAll() {
   fillPagesForm();
   renderImagePreviews();
   renderWatermarkPreview();
+  renderApiConfig();
 }
 
 function currency(value) {
@@ -624,13 +740,38 @@ secondaryImageFile.addEventListener("change", () => {
   });
 });
 
-watermarkFile.addEventListener("change", () => {
+watermarkFile.addEventListener("change", async () => {
+  const file = watermarkFile.files[0];
+  if (!file) return;
+
+  if (isApiConfigured()) {
+    setApiStatus("Uploading watermark to R2...", "neutral");
+    try {
+      const formData = new FormData();
+      formData.append("watermark", file);
+      const result = await apiFetch("/admin/watermark", {
+        method: "POST",
+        body: formData,
+      });
+      state = normalizeState(result.catalog || state);
+      saveState();
+      renderWatermarkPreview();
+      setApiStatus("Watermark uploaded to R2 and catalog settings updated.", "ok");
+      return;
+    } catch (error) {
+      setApiStatus(error.message || "Watermark upload failed.", "error");
+      window.alert(error.message || "Watermark upload failed.");
+      return;
+    }
+  }
+
   readImageFile(
-    watermarkFile.files[0],
+    file,
     (dataUrl) => {
       state.settings.watermarkImage = dataUrl;
       saveState();
       renderWatermarkPreview();
+      setApiStatus("Watermark saved locally. Configure Worker API to store it in R2.", "warn");
     },
     { preservePng: true, maxSize: 1600 },
   );
@@ -689,7 +830,7 @@ function renderWatermarkPreview() {
     : "No watermark selected";
 }
 
-productForm.addEventListener("submit", (event) => {
+productForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!state.categories.length) {
     window.alert("Add at least one category before uploading CAD data.");
@@ -728,6 +869,26 @@ productForm.addEventListener("submit", (event) => {
     updatedAt: now,
   });
 
+  if (isApiConfigured()) {
+    setUploadStatus("Uploading to R2 through the Worker API...", "neutral");
+    try {
+      const remoteProduct = productPayloadForApi(product, existing);
+      const result = await uploadProductToApi(remoteProduct);
+      state = normalizeState(result.catalog || state);
+      saveState();
+      currentScope = "all";
+      clearForm();
+      setView("products");
+      renderAll();
+      setUploadStatus("Uploaded to R2 and saved to the catalog database.", "ok");
+      return;
+    } catch (error) {
+      setUploadStatus(error.message || "R2 upload failed.", "error");
+      window.alert(error.message || "R2 upload failed.");
+      return;
+    }
+  }
+
   state.products = existing ? state.products.map((item) => (item.id === id ? product : item)) : [...state.products, product];
   normalizeGlobalOrder();
   ensureScopeOrders();
@@ -736,7 +897,54 @@ productForm.addEventListener("submit", (event) => {
   clearForm();
   setView("products");
   renderAll();
+  setUploadStatus("Saved locally in this browser. Configure Worker API to upload to R2.", "warn");
 });
+
+function productPayloadForApi(product, existing) {
+  const noDataUrl = (value, fallback = "") => (isDataUrl(value) ? fallback : value);
+  return {
+    ...product,
+    primaryImage: noDataUrl(product.primaryImage, existing?.primaryImage || existing?.thumbnail || ""),
+    secondaryImage: noDataUrl(product.secondaryImage, existing?.secondaryImage || ""),
+    thumbnail: noDataUrl(product.thumbnail, existing?.thumbnail || existing?.primaryImage || ""),
+    assets: existing?.assets || product.assets || {},
+  };
+}
+
+async function uploadProductToApi(product) {
+  const formData = new FormData();
+  formData.append("product", JSON.stringify(product));
+  if (cadFile.files[0]) formData.append("package", cadFile.files[0]);
+  if (primaryImageFile.files[0]) formData.append("previewPrimary", primaryImageFile.files[0]);
+  if (secondaryImageFile.files[0]) formData.append("previewSecondary", secondaryImageFile.files[0]);
+  return apiFetch("/admin/upload", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+async function apiFetch(path, options = {}) {
+  const api = getApiConfig();
+  if (!api.baseUrl) throw new Error("Worker API URL is not configured.");
+  if (!api.token) throw new Error("Admin API token is not configured.");
+
+  const headers = new Headers(options.headers || {});
+  headers.set("x-dropworld-admin-token", api.token);
+  const response = await fetch(`${api.baseUrl}${path}`, { ...options, headers });
+  const text = await response.text();
+  let payload = {};
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    payload = { error: text };
+  }
+  if (!response.ok) throw new Error(payload.error || `Worker API returned ${response.status}.`);
+  return payload;
+}
+
+function isDataUrl(value = "") {
+  return String(value).startsWith("data:");
+}
 
 function renderTaxonomy() {
   document.querySelector("#category-count").textContent = `${state.categories.length}`;

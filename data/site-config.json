@@ -1,0 +1,4 @@
+{
+  "apiBaseUrl": "",
+  "note": "Set apiBaseUrl to the deployed Cloudflare Worker URL, for example https://dropworld-api.example.workers.dev. Public pages will read the live R2 catalog from that API when this is set."
+}

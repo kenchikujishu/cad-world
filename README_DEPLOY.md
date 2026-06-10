@@ -72,13 +72,25 @@ If ConoHa shows a different folder for `dropworld.space`, use that folder instea
 
 ## Catalog Database and R2
 
-The storefront now reads product metadata from:
+The storefront has a local fallback database at:
 
 ```text
 data/catalog.json
 ```
 
-This JSON file is the current lightweight database. Product records store Cloudflare R2 object keys for:
+For live operation, set `DROPWORLD_API_BASE_URL` so GitHub Actions writes `data/site-config.json` during deploy. Public pages will then read the live catalog from the Cloudflare Worker:
+
+```text
+GET {DROPWORLD_API_BASE_URL}/catalog
+```
+
+The Worker stores the catalog database in the public R2 bucket:
+
+```text
+database/catalog.json
+```
+
+Product records store Cloudflare R2 object keys for:
 
 ```text
 assets.package.key
@@ -87,12 +99,19 @@ assets.previewSecondary.key
 settings.watermarkAsset.key
 ```
 
-When R2 public URLs are available, put them in each asset's `url` field. Until then, local preview URLs can stay in the same fields for visual testing.
+Preview images and watermark assets live in the public bucket. CAD package files live in the private bucket and are downloaded through the Worker after checkout or the current demo purchase button.
 
-R2 should hold the actual CAD zip files and preview PNG files. GitHub/ConoHa holds the public HTML/CSS/JS and `data/catalog.json`.
+For more detail, see `README_R2_WORKER.md`.
 
-## Current Admin Limitation
+## Admin Upload Flow
 
-The admin screen loads `data/catalog.json` first, then saves edits to browser local storage for the current demo. Use `Reload DB` to discard local edits and reload the JSON database. Use `Export JSON` after edits to download the next catalog file that should replace `data/catalog.json`.
+The admin screen can save locally for demo use, or upload through the Worker API.
 
-For production, add a server-side write API so admin edits upload files to R2 and update the catalog database automatically.
+To use R2 uploads:
+
+1. Deploy the Cloudflare Worker with the `Deploy Cloudflare Worker` workflow.
+2. Add `DROPWORLD_API_BASE_URL` in GitHub Secrets.
+3. Re-run the ConoHa deploy.
+4. Open `admin.html` -> Storage.
+5. Enter the Worker API URL and `DROPWORLD_ADMIN_TOKEN`.
+6. Click `Test API`.

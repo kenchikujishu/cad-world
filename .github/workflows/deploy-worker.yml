@@ -1,0 +1,93 @@
+name: Deploy Cloudflare Worker
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: cloudflare-worker-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      R2_PUBLIC_BUCKET: ${{ secrets.R2_PUBLIC_BUCKET }}
+      R2_PRIVATE_BUCKET: ${{ secrets.R2_PRIVATE_BUCKET }}
+      R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
+      DROPWORLD_API_BASE_URL: ${{ secrets.DROPWORLD_API_BASE_URL }}
+      DROPWORLD_ADMIN_TOKEN: ${{ secrets.DROPWORLD_ADMIN_TOKEN }}
+      DROPWORLD_DOWNLOAD_SECRET: ${{ secrets.DROPWORLD_DOWNLOAD_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Worker settings
+        run: |
+          missing=0
+          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID R2_PUBLIC_BUCKET R2_PRIVATE_BUCKET DROPWORLD_ADMIN_TOKEN DROPWORLD_DOWNLOAD_SECRET; do
+            if [ -z "${!key}" ]; then
+              echo "::error title=Missing Worker setting::$key is empty. Add it as a repository secret."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Create Wrangler config
+        run: |
+          cat > worker/wrangler.toml <<EOF
+          name = "dropworld-api"
+          main = "dropworld-worker.js"
+          compatibility_date = "2026-06-01"
+          account_id = "${CLOUDFLARE_ACCOUNT_ID}"
+
+          [vars]
+          CATALOG_KEY = "database/catalog.json"
+          KEY_PREFIX = "drop-world"
+          PUBLIC_BUCKET_NAME = "${R2_PUBLIC_BUCKET}"
+          PRIVATE_BUCKET_NAME = "${R2_PRIVATE_BUCKET}"
+          PUBLIC_BASE_URL = "${R2_PUBLIC_BASE_URL}"
+          API_BASE_URL = "${DROPWORLD_API_BASE_URL}"
+          ALLOWED_ORIGINS = "http://dropworld.space,https://dropworld.space,http://www.dropworld.space,https://www.dropworld.space,http://127.0.0.1:4173,http://localhost:4173"
+
+          [[r2_buckets]]
+          binding = "PUBLIC_BUCKET"
+          bucket_name = "${R2_PUBLIC_BUCKET}"
+
+          [[r2_buckets]]
+          binding = "PRIVATE_BUCKET"
+          bucket_name = "${R2_PRIVATE_BUCKET}"
+          EOF
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@latest
+
+      - name: Seed catalog database if missing
+        working-directory: worker
+        run: |
+          if wrangler r2 object get "${R2_PUBLIC_BUCKET}/database/catalog.json" --file /tmp/dropworld-existing-catalog.json --remote --config wrangler.toml; then
+            echo "database/catalog.json already exists in R2. Keeping the live catalog."
+            exit 0
+          fi
+
+          wrangler r2 object put "${R2_PUBLIC_BUCKET}/database/catalog.json" \
+            --file ../data/catalog.json \
+            --content-type "application/json; charset=utf-8" \
+            --remote \
+            --config wrangler.toml
+
+      - name: Set Worker secrets
+        working-directory: worker
+        run: |
+          printf '%s' "$DROPWORLD_ADMIN_TOKEN" | wrangler secret put ADMIN_TOKEN --config wrangler.toml
+          printf '%s' "$DROPWORLD_DOWNLOAD_SECRET" | wrangler secret put DOWNLOAD_SECRET --config wrangler.toml
