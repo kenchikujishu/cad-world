@@ -86,6 +86,10 @@ svg {
   opacity: 1;
 }
 
+.no-hero .site-header::before {
+  opacity: 1;
+}
+
 .site-header > * {
   pointer-events: auto;
 }
@@ -300,33 +304,6 @@ svg {
   font-size: 11px;
 }
 
-.hero {
-  position: relative;
-  display: grid;
-  min-height: 100vh;
-  overflow: hidden;
-  background: var(--paper);
-}
-
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 28vh;
-  background: linear-gradient(transparent, rgba(243, 240, 235, 0.95));
-  pointer-events: none;
-}
-
-.hero-copy {
-  position: absolute;
-  z-index: 3;
-  left: clamp(18px, 3.4vw, 58px);
-  bottom: clamp(36px, 7vw, 108px);
-  display: grid;
-  gap: 18px;
-  width: min(540px, calc(100vw - 36px));
-}
-
 .eyebrow,
 .section-kicker,
 .product-meta,
@@ -337,16 +314,6 @@ svg {
   font-weight: 750;
   letter-spacing: 0;
   text-transform: uppercase;
-}
-
-.hero-copy h1 {
-  margin: 0;
-  max-width: 11.5ch;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(44px, 7.8vw, 112px);
-  font-weight: 400;
-  line-height: 0.91;
-  letter-spacing: 0;
 }
 
 .hero-link {
@@ -363,58 +330,6 @@ svg {
   font-weight: 700;
   text-transform: uppercase;
   backdrop-filter: blur(12px);
-}
-
-.hero-stage {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center end;
-  padding: clamp(76px, 7vw, 118px) clamp(24px, 6vw, 96px) 70px clamp(160px, 19vw, 310px);
-}
-
-.hero-slide {
-  position: absolute;
-  width: min(78vw, 1320px);
-  max-width: calc(100vw - clamp(26px, 8vw, 140px));
-  max-height: 86vh;
-  object-fit: contain;
-  opacity: 0;
-  filter: saturate(0.74) contrast(0.96) brightness(1.05);
-  mix-blend-mode: multiply;
-  transition:
-    opacity 1350ms ease-in-out,
-    filter 1350ms ease-in-out;
-}
-
-.hero-slide.is-active {
-  opacity: 0.78;
-  filter: saturate(0.86) contrast(0.98) brightness(1.03);
-}
-
-.slide-index {
-  position: absolute;
-  z-index: 5;
-  right: clamp(18px, 3vw, 54px);
-  bottom: clamp(18px, 3vw, 48px);
-  display: flex;
-  gap: 8px;
-}
-
-.slide-index button {
-  width: 34px;
-  height: 3px;
-  padding: 0;
-  border: 0;
-  background: rgba(23, 24, 23, 0.22);
-  transition:
-    width 260ms ease,
-    background-color 260ms ease;
-}
-
-.slide-index button.is-active {
-  width: 58px;
-  background: var(--ink);
 }
 
 .about,
@@ -456,6 +371,10 @@ svg {
 
 .collection {
   background: var(--paper-soft);
+}
+
+.no-hero .collection {
+  padding-top: calc(var(--header-height) + clamp(72px, 9vw, 128px));
 }
 
 .collection-head {
@@ -1007,14 +926,6 @@ svg {
     justify-content: flex-start;
   }
 
-  .hero-stage {
-    padding-left: clamp(80px, 14vw, 200px);
-  }
-
-  .hero-slide {
-    width: min(86vw, 1120px);
-  }
-
   .product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1051,30 +962,6 @@ svg {
   .search {
     flex: 1;
     grid-template-columns: 18px minmax(0, 1fr);
-  }
-
-  .hero-copy {
-    bottom: 36px;
-  }
-
-  .hero-copy h1 {
-    max-width: 10.5ch;
-    font-size: clamp(40px, 13vw, 68px);
-  }
-
-  .hero-stage {
-    place-items: center;
-    padding: 120px 14px 170px;
-  }
-
-  .hero-slide {
-    width: 105vw;
-    max-width: none;
-    max-height: 70vh;
-  }
-
-  .slide-index {
-    bottom: 20px;
   }
 
   .about-grid,

@@ -96,17 +96,28 @@ const viewMeta = {
 };
 
 async function loadState() {
+  const useLocalPreview = new URLSearchParams(window.location.search).get("preview") === "local";
   const stored = storageGet(STORAGE_KEY);
-  if (!stored) {
-    const database = await fetchCatalogDatabase();
-    return cloneState(database || defaultState);
+  if (useLocalPreview && stored) {
+    try {
+      return { ...cloneState(defaultState), ...JSON.parse(stored) };
+    } catch {
+      return cloneState(defaultState);
+    }
   }
-  try {
-    return { ...cloneState(defaultState), ...JSON.parse(stored) };
-  } catch {
-    const database = await fetchCatalogDatabase();
-    return cloneState(database || defaultState);
+
+  const database = await fetchCatalogDatabase();
+  if (database) return cloneState(database);
+
+  if (stored) {
+    try {
+      return { ...cloneState(defaultState), ...JSON.parse(stored) };
+    } catch {
+      return cloneState(defaultState);
+    }
   }
+
+  return cloneState(defaultState);
 }
 
 async function fetchCatalogDatabase() {

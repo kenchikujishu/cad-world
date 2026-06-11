@@ -115,12 +115,6 @@ let activeFilter = "all";
 let activeLanguage = "en";
 let cartItems = 0;
 
-const slideButtons = [...document.querySelectorAll(".slide-index button")];
-const heroSlides = [...document.querySelectorAll(".hero-slide")];
-const HERO_SLIDE_INTERVAL = 3000;
-let activeSlide = 0;
-let heroTimer = window.setInterval(nextSlide, HERO_SLIDE_INTERVAL);
-
 async function loadCatalog() {
   const useLocalPreview = new URLSearchParams(window.location.search).get("preview") === "local";
   try {
@@ -302,28 +296,6 @@ const revealObserver = new IntersectionObserver(
   { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
 );
 
-function nextSlide() {
-  setSlide((activeSlide + 1) % heroSlides.length);
-}
-
-function setSlide(index) {
-  activeSlide = index;
-  heroSlides.forEach((slide, slideIndex) => {
-    slide.classList.toggle("is-active", slideIndex === activeSlide);
-  });
-  slideButtons.forEach((button, buttonIndex) => {
-    button.classList.toggle("is-active", buttonIndex === activeSlide);
-  });
-}
-
-slideButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    window.clearInterval(heroTimer);
-    setSlide(Number(button.dataset.slide));
-    heroTimer = window.setInterval(nextSlide, HERO_SLIDE_INTERVAL);
-  });
-});
-
 navToggles.forEach((toggle) => {
   toggle.addEventListener("click", () => {
     const menu = document.querySelector(`#${toggle.dataset.menuToggle}`);
@@ -452,19 +424,19 @@ function applyCatalogCopy() {
   second.textContent = nameParts.slice(1).join(" ") || "WORLD";
   document.title = catalog.store.name || t("document.title");
 
-  document.querySelector("[data-i18n='hero.eyebrow']").textContent =
-    activeLanguage === "ja" ? catalog.pages.heroEyebrowJa : catalog.pages.heroEyebrowEn;
-  document.querySelector("[data-i18n='hero.title']").textContent =
-    activeLanguage === "ja" ? catalog.pages.heroTitleJa : catalog.pages.heroTitleEn;
-  document.querySelector("[data-i18n='hero.cta']").textContent = activeLanguage === "ja" ? t("hero.cta") : catalog.pages.heroCtaEn;
-  document.querySelector("[data-i18n='about.title']").textContent =
-    activeLanguage === "ja" ? catalog.pages.aboutTitleJa : catalog.pages.aboutTitleEn;
-  document.querySelector("[data-i18n='about.body1']").textContent =
-    activeLanguage === "ja" ? catalog.pages.aboutBodyJa : catalog.pages.aboutBodyEn;
-  document.querySelector("[data-i18n='about.body2']").textContent =
+  setText("[data-i18n='about.title']", activeLanguage === "ja" ? catalog.pages.aboutTitleJa : catalog.pages.aboutTitleEn);
+  setText("[data-i18n='about.body1']", activeLanguage === "ja" ? catalog.pages.aboutBodyJa : catalog.pages.aboutBodyEn);
+  setText(
+    "[data-i18n='about.body2']",
     activeLanguage === "ja"
-      ? "商品データ、分類、タグ、固定ページは管理画面から編集できます。本番ではConoHaのPHP/MySQLに接続します。"
-      : "Product data, taxonomy, tags, and fixed pages can be edited from the admin. Production storage will connect to ConoHa PHP/MySQL.";
+      ? "商品データ、分類、タグ、固定ページは管理画面から編集できます。本番ではCloudflare R2とStripeに接続します。"
+      : "Product data, taxonomy, tags, and fixed pages can be edited from the admin. Production storage connects to Cloudflare R2 and Stripe later.",
+  );
+}
+
+function setText(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = value;
 }
 
 function filterTitle(filter) {

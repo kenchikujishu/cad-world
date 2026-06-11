@@ -4,11 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DROP WORLD</title>
-    <link rel="stylesheet" href="styles.css?v=20260611-r2-worker" />
+    <link rel="stylesheet" href="styles.css?v=20260611-no-demo-products" />
   </head>
-  <body>
+  <body class="no-hero">
     <header class="site-header" aria-label="Primary navigation">
-      <a class="brand" href="#home" aria-label="DROP WORLD home">
+      <a class="brand" href="#products" aria-label="DROP WORLD home">
         <span>DROP</span>
         <span>WORLD</span>
       </a>
@@ -69,26 +69,18 @@
     </header>
 
     <main id="home">
-      <section class="hero" aria-label="Featured CAD drawings">
-        <div class="hero-copy">
-          <p class="eyebrow" data-i18n="hero.eyebrow">Digital drawing assets for spatial stories</p>
-          <h1 data-i18n="hero.title">CAD sets for quiet, detailed architecture presentations.</h1>
-          <a class="hero-link" href="#products" data-i18n="hero.cta">Browse collection</a>
+      <section class="collection reveal" id="products">
+        <div class="collection-head">
+          <div>
+            <div class="section-kicker">CAD</div>
+            <h2 id="collection-title">All CAD Sets</h2>
+          </div>
+          <div class="collection-tools" aria-label="Product filters">
+            <button class="filter-button is-active" type="button" data-filter="all" data-i18n="category.all">All</button>
+          </div>
         </div>
 
-        <div class="hero-stage" aria-hidden="true">
-          <img class="hero-slide is-active" src="assets/hero/hero-plan.png" alt="" />
-          <img class="hero-slide" src="assets/hero/hero-lagoon.png" alt="" />
-          <img class="hero-slide" src="assets/hero/hero-aviary.png" alt="" />
-          <img class="hero-slide" src="assets/hero/hero-habitat.png" alt="" />
-        </div>
-
-        <div class="slide-index" aria-label="Hero slide progress">
-          <button class="is-active" type="button" data-slide="0" aria-label="Show slide 1"></button>
-          <button type="button" data-slide="1" aria-label="Show slide 2"></button>
-          <button type="button" data-slide="2" aria-label="Show slide 3"></button>
-          <button type="button" data-slide="3" aria-label="Show slide 4"></button>
-        </div>
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
       </section>
 
       <section class="about reveal" id="about">
@@ -103,22 +95,8 @@
           </p>
         </div>
       </section>
-
-      <section class="collection reveal" id="products">
-        <div class="collection-head">
-          <div>
-            <div class="section-kicker">CAD</div>
-            <h2 id="collection-title">All CAD Sets</h2>
-          </div>
-          <div class="collection-tools" aria-label="Product filters">
-            <button class="filter-button is-active" type="button" data-filter="all" data-i18n="category.all">All</button>
-          </div>
-        </div>
-
-        <div class="product-grid" id="product-grid" aria-live="polite"></div>
-      </section>
     </main>
 
-    <script src="app.js?v=20260611-r2-worker"></script>
+    <script src="app.js?v=20260611-no-demo-products"></script>
   </body>
 </html>
