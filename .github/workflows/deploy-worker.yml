@@ -11,14 +11,14 @@ jobs:
   deploy-worker:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      R2_PUBLIC_BUCKET: ${{ secrets.R2_PUBLIC_BUCKET }}
-      R2_PRIVATE_BUCKET: ${{ secrets.R2_PRIVATE_BUCKET }}
-      R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
-      DROPWORLD_API_BASE_URL: ${{ secrets.DROPWORLD_API_BASE_URL }}
-      DROPWORLD_ADMIN_TOKEN: ${{ secrets.DROPWORLD_ADMIN_TOKEN }}
-      DROPWORLD_DOWNLOAD_SECRET: ${{ secrets.DROPWORLD_DOWNLOAD_SECRET }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN || vars.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID || vars.CF_ACCOUNT_ID }}
+      R2_PUBLIC_BUCKET: ${{ secrets.R2_PUBLIC_BUCKET || vars.R2_PUBLIC_BUCKET || 'dropworld-assets' }}
+      R2_PRIVATE_BUCKET: ${{ secrets.R2_PRIVATE_BUCKET || vars.R2_PRIVATE_BUCKET || 'dropworld-products' }}
+      R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL || vars.R2_PUBLIC_BASE_URL }}
+      DROPWORLD_API_BASE_URL: ${{ secrets.DROPWORLD_API_BASE_URL || vars.DROPWORLD_API_BASE_URL }}
+      DROPWORLD_ADMIN_TOKEN: ${{ secrets.DROPWORLD_ADMIN_TOKEN || vars.DROPWORLD_ADMIN_TOKEN || secrets.ADMIN_TOKEN || vars.ADMIN_TOKEN }}
+      DROPWORLD_DOWNLOAD_SECRET: ${{ secrets.DROPWORLD_DOWNLOAD_SECRET || vars.DROPWORLD_DOWNLOAD_SECRET || secrets.DOWNLOAD_SECRET || vars.DOWNLOAD_SECRET }}
 
     steps:
       - name: Checkout
@@ -27,12 +27,14 @@ jobs:
       - name: Check Worker settings
         run: |
           missing=0
-          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID R2_PUBLIC_BUCKET R2_PRIVATE_BUCKET DROPWORLD_ADMIN_TOKEN DROPWORLD_DOWNLOAD_SECRET; do
+          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DROPWORLD_ADMIN_TOKEN DROPWORLD_DOWNLOAD_SECRET; do
             if [ -z "${!key}" ]; then
-              echo "::error title=Missing Worker setting::$key is empty. Add it as a repository secret."
+              echo "::error title=Missing Worker setting::$key is empty. Add it as a repository secret or repository variable with this exact name."
               missing=1
             fi
           done
+          echo "R2 public bucket: ${R2_PUBLIC_BUCKET}"
+          echo "R2 private bucket: ${R2_PRIVATE_BUCKET}"
           exit "$missing"
 
       - name: Create Wrangler config
@@ -64,8 +66,8 @@ jobs:
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
           command: deploy
 

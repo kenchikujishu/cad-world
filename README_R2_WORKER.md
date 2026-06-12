@@ -42,6 +42,15 @@ Recommended for public URLs:
 
 `DROPWORLD_DOWNLOAD_SECRET` signs short-lived demo download links. Use a different long random value.
 
+The workflow can also read repository Variables with the same names, but sensitive values should be GitHub Secrets. The bucket names default to `dropworld-assets` and `dropworld-products` if they are not set.
+
+Supported aliases:
+
+- `CF_API_TOKEN` for `CLOUDFLARE_API_TOKEN`
+- `CF_ACCOUNT_ID` for `CLOUDFLARE_ACCOUNT_ID`
+- `ADMIN_TOKEN` for `DROPWORLD_ADMIN_TOKEN`
+- `DOWNLOAD_SECRET` for `DROPWORLD_DOWNLOAD_SECRET`
+
 ## Flow
 
 1. Run the `Deploy Cloudflare Worker` workflow manually.
